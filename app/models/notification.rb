@@ -1,8 +1,13 @@
 class Notification < ActiveRecord::Base
-  belongs_to :job
-  attr_accessible :job
+  has_and_belongs_to_many :jobs
+  attr_accessible :name
+  validates :name, :presence => true
 
-  def alert
+  def alert(job)
     raise "ERROR: alert must be defined"
+  end
+
+  def early_alert(job)
+    raise "ERROR: early_alert must be defined"
   end
 end

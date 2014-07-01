@@ -12,7 +12,12 @@
 
 <p>
   <b>Frequency:</b>
-  <%= @job.is_a?(CronJob) ? @job.cron_expression : @job.frequency_string %>
+  <%= @job.is_a?(CronJob) ? @job.cron_expression : @job.frequency_str %>
+</p>
+
+<p>
+  <b>Buffer time:</b>
+  <%= @job.buffer_time_str %>
 </p>
 
 <p>
@@ -32,7 +37,7 @@
 
 <p>
   <b>Notifications:</b>
-  <%= @job.notifications.map(&:to_s) %>
+  <%= @job.notifications.map(&:name) %>
 </p>
 
 

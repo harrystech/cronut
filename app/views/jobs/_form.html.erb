@@ -26,10 +26,6 @@
       <%= f.label :cron_expression %><br />
       <%= f.text_field :cron_expression %>
     </div>
-    <div class="field cronjob">
-      <%= f.label :buffer_time %><br />
-      <%= f.text_field :buffer_time %>
-    </div>
   <% end %>
   <% if !@job.is_a?(CronJob) %>
     <div class="field intervaljob">
@@ -38,12 +34,12 @@
     </div>
   <% end %>
   <div class="field">
-    <%= f.label :email %><br />
-    <%= f.text_field :email %>
+    <%= f.label :buffer_time %><br />
+    <%= f.text_field :buffer_time %>
   </div>
   <div class="field">
-    <%= f.label :pagerduty %><br />
-    <%= f.check_box :pagerduty %>
+    <%= f.label :notifications %><br />
+    <%= collection_select :job, :notifications, Notification.all, :id, :name, { :selected => @job.notification_ids }, { :multiple => true, :name => 'job[notification_ids][]' } %>
   </div>
   <div class="actions">
     <%= f.submit %>

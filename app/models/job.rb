@@ -1,11 +1,11 @@
 class Job < ActiveRecord::Base
-  has_many :notifications
-  attr_accessible :name, :pagerduty, :email
+  has_and_belongs_to_many :notifications
+  attr_accessible :name, :pagerduty, :email, :notifications, :notification_ids, :buffer_time
 
   attr_accessor :pagerduty, :email
 
   before_create :create_public_id!, :if => Proc.new{|job| job.public_id.blank?}
-  before_save :calculate_next_scheduled_time!
+  before_save :check_if_pinged_within_buffer_time
 
   default_scope :order => 'next_scheduled_time'
 
@@ -30,9 +30,17 @@ class Job < ActiveRecord::Base
 
   def expire!
     notifications.each { |n|
-      n.alert
+      n.alert(self)
     }
     self.save!
+  end
+
+  def extra_time
+    return (buffer_time ? buffer_time : 0).seconds
+  end
+
+  def buffer_time_str
+    return buffer_time ? Job.time_str(buffer_time) : "none"
   end
 
   def last_successful_time_str
@@ -41,6 +49,16 @@ class Job < ActiveRecord::Base
 
   def next_scheduled_time_str
     return next_scheduled_time.in_time_zone("Eastern Time (US & Canada)").strftime("%B %-d, %Y %l:%M:%S%P EST")
+  end
+
+  def check_if_pinged_within_buffer_time
+    if !buffer_time || !next_scheduled_time || (self.last_successful_time && self.last_successful_time + (self.buffer_time * 2).seconds >= self.next_scheduled_time)
+      calculate_next_scheduled_time!
+    elsif buffer_time && next_scheduled_time && last_successful_time_changed?
+      notifications.each { |n|
+        n.early_alert(self)
+      }
+    end
   end
 
   def calculate_next_scheduled_time!
@@ -55,5 +73,29 @@ class Job < ActiveRecord::Base
       puts "Job: #{job.name} expired"
       job.expire!
     }
+  end
+
+  def self.time_str(seconds)
+    if seconds % 2629740 == 0
+      num = seconds / 2629740
+      unit = "month"
+    elsif seconds % 604800 == 0
+      num = seconds / 604800
+      unit = "week"
+    elsif seconds % 86400 == 0
+      num = seconds / 604800
+      unit = "day"
+    elsif seconds % 3600 == 0
+      num = seconds / 3600
+      unit = "hour"
+    elsif seconds % 60 == 0
+      num = seconds / 60
+      unit = "minute"
+    else
+      num = seconds
+      unit = "second"
+    end
+
+    return "#{num} #{unit.pluralize(num)}"
   end
 end

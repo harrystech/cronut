@@ -11,7 +11,7 @@
 #
 # It's strongly recommended to check this file into your version control system.
 
-ActiveRecord::Schema.define(:version => 20140701025211) do
+ActiveRecord::Schema.define(:version => 20140701195216) do
 
   create_table "delayed_jobs", :force => true do |t|
     t.integer  "priority",   :default => 0, :null => false
@@ -45,14 +45,19 @@ ActiveRecord::Schema.define(:version => 20140701025211) do
   add_index "jobs", ["next_scheduled_time"], :name => "index_jobs_on_next_scheduled_time"
   add_index "jobs", ["public_id"], :name => "index_jobs_on_public_id"
 
+  create_table "jobs_notifications", :id => false, :force => true do |t|
+    t.integer "job_id"
+    t.integer "notification_id"
+  end
+
   create_table "notifications", :force => true do |t|
-    t.integer  "job_id",     :null => false
+    t.string   "name",       :null => false
     t.string   "type",       :null => false
-    t.string   "email"
+    t.string   "value"
     t.datetime "created_at", :null => false
     t.datetime "updated_at", :null => false
   end
 
-  add_index "notifications", ["job_id", "type"], :name => "index_notifications_on_job_id_and_type"
+  add_index "notifications", ["type"], :name => "index_notifications_on_type"
 
 end

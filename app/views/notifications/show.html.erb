@@ -1,0 +1,28 @@
+<p id="notice"><%= notice %></p>
+
+<p>
+  <b>Name:</b>
+  <%= @notification.name %>
+</p>
+
+<p>
+  <b>Type:</b>
+  <%= @notification.type %>
+</p>
+
+<p>
+  <b>Value:</b>
+  <%= @notification.value %>
+</p>
+
+<p>
+  <b>Jobs:</b>
+  <ul>
+	  <% @notification.jobs.each do |job| %>
+	  	<li><%= job.name %></li>
+	  <% end %>
+  </ul>
+</p>
+
+<%= link_to 'Edit', edit_notification_path(@notification) %> |
+<%= link_to 'Back', notifications_path %>

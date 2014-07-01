@@ -1,4 +1,5 @@
 TheCronic::Application.routes.draw do
+  resources :notifications
   resources :jobs
 
   get 'ping/:public_id' => "jobs#ping"

@@ -1,11 +1,18 @@
 class PagerdutyNotification < Notification
+  attr_accessible :value
+  validates :value, :presence => true
 
-  def alert
-    pd = Pagerduty.new(ENV["PAGERDUTY_SERVICE_KEY"])
+  def self.model_name
+    superclass.model_name
+  end
+
+  def alert(job)
+    pd = Pagerduty.new(self.value)
     pd.trigger("Job \"#{job.name}\" didn't run")
   end
 
-  def to_s
-  	return "Pagerduty"
+  def early_alert(job)
+    pd = Pagerduty.new(self.value)
+    pd.trigger("Job \"#{job.name}\" ran too early")
   end
 end

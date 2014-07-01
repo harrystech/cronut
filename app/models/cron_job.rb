@@ -1,7 +1,11 @@
 class CronJob < Job
-  attr_accessible :cron_expression, :buffer_time
-  validates :cron_expression, :buffer_time, :presence => true
+  attr_accessible :cron_expression
+  validates :cron_expression, :presence => true
   validate :validate_cron_expression
+
+  def self.model_name
+    superclass.model_name
+  end
 
   def calculate_next_scheduled_time!
     cron = CronParser.new(cron_expression)
@@ -9,14 +13,10 @@ class CronJob < Job
     now = Time.now
 
     # Calculate to see if the last successful time was close enough to count as hitting the next cycle
-    if self.last_successful_time && self.last_successful_time + (self.buffer_time * 2).seconds >= self.next_scheduled_time
-      now = self.next_scheduled_time + 1.seconds
+    if (!buffer_time && self.last_successful_time_changed?) || buffer_time && self.last_successful_time && (self.last_successful_time + (self.buffer_time * 2).seconds >= self.next_scheduled_time)
+      now = self.next_scheduled_time.in_time_zone("Eastern Time (US & Canada)") + 1.seconds
     end
-    self.next_scheduled_time = cron.next(now) + buffer_time.seconds
-  end
-
-  def self.model_name
-    superclass.model_name
+    self.next_scheduled_time = cron.next(now) + extra_time
   end
 
   private

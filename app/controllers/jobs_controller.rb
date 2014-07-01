@@ -35,11 +35,6 @@ class JobsController < ApplicationController
   # GET /jobs/1/edit
   def edit
     @job = Job.find(params[:id])
-
-    @job.pagerduty = @job.notifications.any? { |n| n.is_a?(PagerdutyNotification)}
-
-    n = @job.notifications.find {|n| n.is_a?(EmailNotification) }
-    @job.email = n.presence && n.email
   end
 
   # POST /jobs
@@ -52,7 +47,6 @@ class JobsController < ApplicationController
     elsif params[:job][:type] == "IntervalJob"
       params[:job].delete(:type)
       params[:job].delete(:cron_expression)
-      params[:job].delete(:buffer_time)
       @job = IntervalJob.new(params[:job])
     else
       @job = Job.new
@@ -61,14 +55,6 @@ class JobsController < ApplicationController
           format.json { render json: {:error => "Invalid job type"}, status: :unprocessable_entity }
       end
       return
-    end
-    
-    if params[:job][:email].presence
-      @job.notifications << EmailNotification.new({:email => params[:job][:email]})
-    end
-
-    if params[:job][:pagerduty] == "1"
-      @job.notifications << PagerdutyNotification.new
     end
 
     respond_to do |format|
@@ -86,28 +72,6 @@ class JobsController < ApplicationController
   # PUT /jobs/1.json
   def update
     @job = Job.find(params[:id])
-
-    email_notification = @job.notifications.find {|n| n.is_a?(EmailNotification) }
-    if params[:job][:email].presence
-      if !email_notification
-        email_notification = EmailNotification.new({:job => @job})
-      end
-      email_notification.email = params[:job][:email]
-      email_notification.save!
-    else
-      if email_notification
-        email_notification.destroy
-      end
-    end
-
-    pd_notification = @job.notifications.find {|n| n.is_a?(PagerdutyNotification) }
-    if params[:job][:pagerduty] == "1"
-      if !pd_notification
-        PagerdutyNotification.create!({:job => @job})
-      end
-    elsif pd_notification
-      pd_notification.destroy
-    end
 
     respond_to do |format|
       if @job.update_attributes(params[:job])

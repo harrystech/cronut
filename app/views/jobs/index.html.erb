@@ -5,6 +5,7 @@
     <th>Name</th>
     <th>Type</th>
     <th>Frequency</th>
+    <th>Buffer Time</th>
     <th>Last successful time</th>
     <th>Next scheduled time</th>
     <th>URL</th>
@@ -18,11 +19,12 @@
   <tr>
     <td><%= job.name %></td>
     <td><%= job.type %></td>
-    <td><%= job.is_a?(CronJob) ? job.cron_expression : job.frequency_string %></td>
+    <td><%= job.is_a?(CronJob) ? job.cron_expression : job.frequency_str %></td>
+    <td><%= job.buffer_time_str %></td>
     <td><%= job.last_successful_time_str %></td>
     <td><%= job.next_scheduled_time_str %></td>
     <td>/ping/<%= job.public_id %></td>
-    <td><%= job.notifications.map(&:to_s) %></td>
+    <td><%= job.notifications.map(&:name) %></td>
     <td><%= link_to 'Show', job %></td>
     <td><%= link_to 'Edit', edit_job_path(job) %></td>
     <td><%= link_to 'Destroy', job, method: :delete, data: { confirm: 'Are you sure?' } %></td>
