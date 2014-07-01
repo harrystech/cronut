@@ -27,9 +27,11 @@ gem 'clockwork'
 gem 'delayed_job_active_record'
 gem 'pagerduty'
 
-gem 'pry'
-gem 'pry-rails'
-gem 'pry-byebug'  # fork of pry-debugger for ruby 2.0
+group :development, :test do
+  gem 'rspec-rails'
+  gem 'pry'
+  gem 'sqlite3'
+end
 
 # To use ActiveModel has_secure_password
 # gem 'bcrypt-ruby', '~> 3.0.0'

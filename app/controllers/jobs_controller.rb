@@ -55,7 +55,12 @@ class JobsController < ApplicationController
       params[:job].delete(:buffer_time)
       @job = IntervalJob.new(params[:job])
     else
-      raise "Job type invalid"
+      @job = Job.new
+      respond_to do |format|
+          format.html { render action: "new" }
+          format.json { render json: {:error => "Invalid job type"}, status: :unprocessable_entity }
+      end
+      return
     end
     
     if params[:job][:email].presence
