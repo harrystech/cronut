@@ -2,6 +2,8 @@ TheCronic::Application.routes.draw do
   resources :jobs
 
   get 'ping/:public_id' => "jobs#ping"
+
+  root to: 'jobs#index'
   # The priority is based upon order of creation:
   # first created -> highest priority.
 

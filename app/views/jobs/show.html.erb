@@ -17,12 +17,12 @@
 
 <p>
   <b>Last successful time:</b>
-  <%= @job.last_successful_time ? @job.last_successful_time.in_time_zone("Eastern Time (US & Canada)").strftime("%B %-d, %Y %l:%M:%S%P EST") : "never" %>
+  <%= @job.last_successful_time_str %>
 </p>
 
 <p>
   <b>Next scheduled time:</b>
-  <%= @job.next_scheduled_time.in_time_zone("Eastern Time (US & Canada)").strftime("%B %-d, %Y %l:%M:%S%P EST") %>
+  <%= @job.next_scheduled_time_str %>
 </p>
 
 <p>

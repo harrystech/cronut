@@ -19,8 +19,8 @@
     <td><%= job.name %></td>
     <td><%= job.type %></td>
     <td><%= job.is_a?(CronJob) ? job.cron_expression : job.frequency_string %></td>
-    <td><%= job.last_successful_time ? job.last_successful_time.in_time_zone("Eastern Time (US & Canada)").strftime("%B %-d, %Y %l:%M:%S%P EST") : "never" %></td>
-    <td><%= job.next_scheduled_time.in_time_zone("Eastern Time (US & Canada)").strftime("%B %-d, %Y %l:%M:%S%P EST") %></td>
+    <td><%= job.last_successful_time_str %></td>
+    <td><%= job.next_scheduled_time_str %></td>
     <td>/ping/<%= job.public_id %></td>
     <td><%= job.notifications.map(&:to_s) %></td>
     <td><%= link_to 'Show', job %></td>

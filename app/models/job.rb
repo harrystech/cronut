@@ -4,7 +4,7 @@ class Job < ActiveRecord::Base
 
   attr_accessor :pagerduty, :email
 
-  after_initialize :create_public_id!
+  before_create :create_public_id!, :if => Proc.new{|job| job.public_id.blank?}
   before_save :calculate_next_scheduled_time!
 
   default_scope :order => 'next_scheduled_time'
@@ -12,10 +12,6 @@ class Job < ActiveRecord::Base
   validates :name, :presence => true
 
   def create_public_id!
-    if !public_id.blank?
-      return
-    end
-
     public_id = SecureRandom.hex(6).upcase
     collision = Job.find_by_public_id(public_id)
 
@@ -37,6 +33,14 @@ class Job < ActiveRecord::Base
       n.alert
     }
     self.save!
+  end
+
+  def last_successful_time_str
+    return last_successful_time ? last_successful_time.in_time_zone("Eastern Time (US & Canada)").strftime("%B %-d, %Y %l:%M:%S%P EST") : "never"
+  end
+
+  def next_scheduled_time_str
+    return next_scheduled_time.in_time_zone("Eastern Time (US & Canada)").strftime("%B %-d, %Y %l:%M:%S%P EST")
   end
 
   def calculate_next_scheduled_time!
