@@ -5,9 +5,11 @@ class Job < ActiveRecord::Base
   attr_accessor :pagerduty, :email
 
   after_initialize :create_public_id!
-  after_validation :calculate_next_scheduled_time!
+  before_save :calculate_next_scheduled_time!
 
   default_scope :order => 'next_scheduled_time'
+
+  validates :name, :presence => true
 
   def create_public_id!
     if !public_id.blank?

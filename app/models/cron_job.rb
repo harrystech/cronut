@@ -27,8 +27,12 @@ class CronJob < Job
     if values.length < 5 || values.length > 6
       self.errors.add(:cron_expression, "invalid value")
     else
-      attempt_to_parse = CronParser.new(cron_expression)
-      attempt_to_parse.next(Time.now)
+      begin
+        attempt_to_parse = CronParser.new(cron_expression)
+        attempt_to_parse.next(Time.now)
+      rescue Exception => e
+        self.errors.add(:cron_expression, "not a valid cronline")
+      end
     end
   end
 end
