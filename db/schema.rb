@@ -11,7 +11,17 @@
 #
 # It's strongly recommended to check this file into your version control system.
 
-ActiveRecord::Schema.define(:version => 20140701195216) do
+ActiveRecord::Schema.define(:version => 20140701225243) do
+
+  create_table "api_tokens", :force => true do |t|
+    t.string   "name"
+    t.string   "token"
+    t.datetime "created_at", :null => false
+    t.datetime "updated_at", :null => false
+  end
+
+  add_index "api_tokens", ["name"], :name => "index_api_tokens_on_name", :unique => true
+  add_index "api_tokens", ["token"], :name => "index_api_tokens_on_token", :unique => true
 
   create_table "delayed_jobs", :force => true do |t|
     t.integer  "priority",   :default => 0, :null => false

@@ -1,0 +1,30 @@
+#!/usr/bin/env ruby
+require 'rubygems'
+require 'optparse'
+
+# Parse options and throw errors before loading Rails
+options = {}
+OptionParser.new do |opts|
+  opts.banner = "Usage: generate-api-token -n NAME"
+  opts.on("-n", "--name [Name of Token]", "What the token will be called") do |name|
+    options[:name] = name
+  end
+end.parse!
+
+if options[:name].nil?
+  raise OptionParser::MissingArgument, 'Script requires name'
+end
+
+# Load Rails
+require './config/environment.rb'
+
+def generate_token(name, type)
+  api_token = SecureRandom.hex
+  token = ApiToken.create!({
+    name: name,
+    token: api_token
+  })
+  return token.token
+end
+
+puts generate_token(options[:name])
