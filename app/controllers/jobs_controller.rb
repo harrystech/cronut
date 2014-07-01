@@ -95,10 +95,13 @@ class JobsController < ApplicationController
       end
     end
 
+    pd_notification = @job.notifications.find {|n| n.is_a?(PagerdutyNotification) }
     if params[:job][:pagerduty] == "1"
-      PagerdutyNotification.create!({:job => @job})
-    else
-      @job.notifications.each {|n| n.destroy if n.is_a?(PagerdutyNotification) }
+      if !pd_notification
+        PagerdutyNotification.create!({:job => @job})
+      end
+    elsif pd_notification
+      pd_notification.destroy
     end
 
     respond_to do |format|
