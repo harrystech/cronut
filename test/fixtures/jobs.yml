@@ -1,0 +1,13 @@
+# Read about fixtures at http://api.rubyonrails.org/classes/ActiveRecord/Fixtures.html
+
+one:
+  name: MyString
+  last_successful_time: 2014-06-30 15:29:45
+  next_scheduled_time: 2014-06-30 15:29:45
+  public_id: MyString
+
+two:
+  name: MyString
+  last_successful_time: 2014-06-30 15:29:45
+  next_scheduled_time: 2014-06-30 15:29:45
+  public_id: MyString

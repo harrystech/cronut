@@ -1,0 +1,40 @@
+<p id="notice"><%= notice %></p>
+
+<p>
+  <b>Name:</b>
+  <%= @job.name %>
+</p>
+
+<p>
+  <b>Type:</b>
+  <%= @job.type %>
+</p>
+
+<p>
+  <b>Frequency:</b>
+  <%= @job.is_a?(CronJob) ? @job.cron_expression : @job.frequency_string %>
+</p>
+
+<p>
+  <b>Last successful time:</b>
+  <%= @job.last_successful_time ? @job.last_successful_time.in_time_zone("Eastern Time (US & Canada)").strftime("%B %-d, %Y %l:%M:%S%P EST") : "never" %>
+</p>
+
+<p>
+  <b>Next scheduled time:</b>
+  <%= @job.next_scheduled_time.in_time_zone("Eastern Time (US & Canada)").strftime("%B %-d, %Y %l:%M:%S%P EST") %>
+</p>
+
+<p>
+  <b>Ping URL:</b>
+  /ping/<%= @job.public_id %>
+</p>
+
+<p>
+  <b>Notifications:</b>
+  <%= @job.notifications.map(&:to_s) %>
+</p>
+
+
+<%= link_to 'Edit', edit_job_path(@job) %> |
+<%= link_to 'Back', jobs_path %>

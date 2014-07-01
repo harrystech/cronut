@@ -1,0 +1,51 @@
+<%= form_for(@job) do |f| %>
+  <% if @job.errors.any? %>
+    <div id="error_explanation">
+      <h2><%= pluralize(@job.errors.count, "error") %> prohibited this job from being saved:</h2>
+
+      <ul>
+      <% @job.errors.full_messages.each do |msg| %>
+        <li><%= msg %></li>
+      <% end %>
+      </ul>
+    </div>
+  <% end %>
+
+  <div class="field">
+    <%= f.label :name %><br />
+    <%= f.text_field :name %>
+  </div>
+  <% if @job.new_record? %>
+    <div class="field">
+      <%= f.label :type %><br />
+      <%= f.select :type, ["CronJob", "IntervalJob"] %>
+    </div>
+  <% end %>
+  <% if !@job.is_a?(IntervalJob) %>
+    <div class="field cronjob">
+      <%= f.label :cron_expression %><br />
+      <%= f.text_field :cron_expression %>
+    </div>
+    <div class="field cronjob">
+      <%= f.label :buffer_time %><br />
+      <%= f.text_field :buffer_time %>
+    </div>
+  <% end %>
+  <% if !@job.is_a?(CronJob) %>
+    <div class="field intervaljob">
+      <%= f.label :frequency %><br />
+      <%= f.text_field :frequency %>
+    </div>
+  <% end %>
+  <div class="field">
+    <%= f.label :email %><br />
+    <%= f.text_field :email %>
+  </div>
+  <div class="field">
+    <%= f.label :pagerduty %><br />
+    <%= f.check_box :pagerduty %>
+  </div>
+  <div class="actions">
+    <%= f.submit %>
+  </div>
+<% end %>

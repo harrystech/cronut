@@ -1,0 +1,35 @@
+<h1>Listing jobs</h1>
+
+<table>
+  <tr>
+    <th>Name</th>
+    <th>Type</th>
+    <th>Frequency</th>
+    <th>Last successful time</th>
+    <th>Next scheduled time</th>
+    <th>URL</th>
+    <th>Notifications</th>
+    <th></th>
+    <th></th>
+    <th></th>
+  </tr>
+
+<% @jobs.each do |job| %>
+  <tr>
+    <td><%= job.name %></td>
+    <td><%= job.type %></td>
+    <td><%= job.is_a?(CronJob) ? job.cron_expression : job.frequency_string %></td>
+    <td><%= job.last_successful_time ? job.last_successful_time.in_time_zone("Eastern Time (US & Canada)").strftime("%B %-d, %Y %l:%M:%S%P EST") : "never" %></td>
+    <td><%= job.next_scheduled_time.in_time_zone("Eastern Time (US & Canada)").strftime("%B %-d, %Y %l:%M:%S%P EST") %></td>
+    <td>/ping/<%= job.public_id %></td>
+    <td><%= job.notifications.map(&:to_s) %></td>
+    <td><%= link_to 'Show', job %></td>
+    <td><%= link_to 'Edit', edit_job_path(job) %></td>
+    <td><%= link_to 'Destroy', job, method: :delete, data: { confirm: 'Are you sure?' } %></td>
+  </tr>
+<% end %>
+</table>
+
+<br />
+
+<%= link_to 'New job', new_job_path %>
