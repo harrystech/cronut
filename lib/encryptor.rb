@@ -14,7 +14,7 @@ class Encryptor
 
     private
     def get_private_key
-      ENV['THE_CRONIC_PRIVATE_KEY'] || OpenSSL::PKey::RSA.generate
+      ENV['THE_CRONIC_PRIVATE_KEY'] || OpenSSL::PKey::RSA.generate(1024)
     end
   end
 end

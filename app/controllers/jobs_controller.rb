@@ -110,11 +110,11 @@ class JobsController < ApplicationController
   end
 
   def verify_api_token
-    api_token = Encryptor.decrypt(request.headers[API_TOKEN_HEADER])
+    api_token = request.headers[API_TOKEN_HEADER].presence && Encryptor.decrypt(request.headers[API_TOKEN_HEADER])
 
     token_response = ApiToken.verify_token(api_token)
     if !token_response[:success]
-      return render json: JSONResponder.error(Exception.new(token_response[:error])), status: 401
+      return render json: token_response[:error], status: 401
     end
   end
 end
