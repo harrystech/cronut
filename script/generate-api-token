@@ -18,7 +18,7 @@ end
 # Load Rails
 require './config/environment.rb'
 
-def generate_token(name, type)
+def generate_token(name)
   api_token = SecureRandom.hex
   token = ApiToken.create!({
     name: name,
