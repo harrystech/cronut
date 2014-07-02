@@ -52,7 +52,7 @@ class Job < ActiveRecord::Base
   end
 
   def check_if_pinged_within_buffer_time
-    if !buffer_time || !next_scheduled_time || (self.last_successful_time && self.last_successful_time + (self.buffer_time * 2).seconds >= self.next_scheduled_time)
+    if !buffer_time || !next_scheduled_time || self.next_scheduled_time <= Time.now || (self.last_successful_time && self.last_successful_time + (self.buffer_time * 2).seconds >= self.next_scheduled_time)
       calculate_next_scheduled_time!
     elsif buffer_time && next_scheduled_time && last_successful_time_changed?
       notifications.each { |n|
