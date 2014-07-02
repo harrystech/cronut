@@ -9,5 +9,5 @@ Clockwork.configure do |config|
 end
 
 every(1.minute, 'check-expired-jobs') {
-  Job.delay.check_expired_jobs
+  Job.check_expired_jobs
 }

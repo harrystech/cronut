@@ -24,7 +24,6 @@ gem 'jquery-rails'
 
 gem 'parse-cron'
 gem 'clockwork'
-gem 'delayed_job_active_record'
 gem 'pagerduty'
 
 group :development, :test do

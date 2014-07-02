@@ -43,11 +43,6 @@ GEM
       coffee-script-source
       execjs
     coffee-script-source (1.7.0)
-    delayed_job (4.0.1)
-      activesupport (>= 3.0, < 4.2)
-    delayed_job_active_record (4.0.1)
-      activerecord (>= 3.0, < 4.2)
-      delayed_job (>= 3.0, < 4.1)
     diff-lcs (1.2.5)
     erubis (2.7.0)
     execjs (2.2.1)
@@ -143,7 +138,6 @@ DEPENDENCIES
   activerecord-postgresql-adapter
   clockwork
   coffee-rails (~> 3.2.1)
-  delayed_job_active_record
   jquery-rails
   pagerduty
   parse-cron
