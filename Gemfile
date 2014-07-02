@@ -1,6 +1,6 @@
 source 'https://rubygems.org'
 
-gem 'rails', '3.2.18'
+gem 'rails', '3.2.19'
 
 # Bundle edge Rails instead:
 # gem 'rails', :git => 'git://github.com/rails/rails.git'
@@ -22,7 +22,7 @@ end
 
 gem 'jquery-rails'
 
-gem 'parse-cron'
+gem 'rufus-scheduler'
 gem 'clockwork'
 gem 'pagerduty'
 
