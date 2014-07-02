@@ -157,4 +157,39 @@ describe JobsController do
     end
   end
 
+  describe "GET ping" do
+    before(:each) do
+      @job = IntervalJob.create!({:name => "Test IntervalJob", :frequency => 600})
+      token_value = SecureRandom.hex
+      @token = ApiToken.create!({
+        :name => "Test token",
+        :token => token_value
+      })
+    end
+
+    after(:each) do
+      @job.destroy
+      @token.destroy
+    end
+
+    it "ignores request without token" do
+      get :ping, {:public_id => @job.public_id}, valid_session
+      response.body.should eq "Empty token given."
+    end
+
+    it "ignores request with invalid token" do
+      request.env[JobsController::API_TOKEN_HEADER] = @token.token
+      get :ping, {:public_id => @job.public_id}, valid_session
+      response.body.should eq "Invalid token."
+    end
+
+    it "pings with valid token" do
+      request.env[JobsController::API_TOKEN_HEADER] = Encryptor.encrypt(@token.token)
+      get :ping, {:public_id => @job.public_id}, valid_session
+      @job.reload
+      response.status.should eq 200
+      @job.last_successful_time.should_not be_nil
+    end
+  end
+
 end

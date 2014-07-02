@@ -31,6 +31,7 @@ group :development, :test do
   gem 'rspec-rails'
   gem 'pry'
   gem 'sqlite3'
+  gem 'timecop'
 end
 
 # To use ActiveModel has_secure_password

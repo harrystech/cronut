@@ -1,5 +1,9 @@
 require 'spec_helper'
 
 describe Notification do
-  pending "add some examples to (or delete) #{__FILE__}"
+  it "cannot create object of Notification without type" do
+    expect {
+      Notification.create!({:name => "Test notification"})
+    }.to raise_error(ActiveRecord::StatementInvalid)
+  end
 end

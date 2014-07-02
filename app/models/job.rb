@@ -1,8 +1,6 @@
 class Job < ActiveRecord::Base
   has_and_belongs_to_many :notifications
-  attr_accessible :name, :pagerduty, :email, :notifications, :notification_ids, :buffer_time
-
-  attr_accessor :pagerduty, :email
+  attr_accessible :name, :notifications, :notification_ids, :buffer_time
 
   before_create :create_public_id!, :if => Proc.new{|job| job.public_id.blank?}
   before_save :check_if_pinged_within_buffer_time
@@ -30,7 +28,11 @@ class Job < ActiveRecord::Base
 
   def expire!
     notifications.each { |n|
-      n.alert(self)
+      begin
+        n.alert(self)
+      rescue Exception => e
+        puts "Exception on alert trigger for #{self.name} - #{n.name}: #{e.inspect}"
+      end
     }
     self.save!
   end
