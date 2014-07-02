@@ -2,7 +2,6 @@ require 'spec_helper'
 
 describe Job do
   after(:each) do
-    @job.destroy
     Timecop.return
   end
 
