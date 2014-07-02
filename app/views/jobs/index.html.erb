@@ -8,7 +8,7 @@
     <th>Buffer Time</th>
     <th>Last successful time</th>
     <th>Next scheduled time</th>
-    <th>URL</th>
+    <th>Ping ID</th>
     <th>Notifications</th>
     <th></th>
     <th></th>
@@ -23,7 +23,7 @@
     <td><%= job.buffer_time_str %></td>
     <td><%= job.last_successful_time_str %></td>
     <td><%= job.next_scheduled_time_str %></td>
-    <td>/ping/<%= job.public_id %></td>
+    <td><%= job.public_id %></td>
     <td><%= job.notifications.map(&:name) %></td>
     <td><%= link_to 'Show', job %></td>
     <td><%= link_to 'Edit', edit_job_path(job) %></td>
