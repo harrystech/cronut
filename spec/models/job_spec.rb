@@ -122,6 +122,52 @@ describe Job do
         notification.should_receive(:alert)
         @job.expire!
       end
+
+      it "sends early alert if pinged too early" do
+        notification = PagerdutyNotification.create!({:name => "Test notification", :value => "dummy value"})
+        notification.stub(:alert)
+        notification.stub(:early_alert)
+        @job.notifications << notification
+        @job.save!
+        Timecop.travel(1.minute)
+        notification.should_receive(:early_alert)
+        @job.ping!
+      end
+
+      it "does not send early alert if job is already late" do
+        notification = PagerdutyNotification.create!({:name => "Test notification", :value => "dummy value"})
+        notification.stub(:alert)
+        notification.stub(:early_alert)
+        @job.notifications << notification
+        @job.save!
+        Timecop.travel(1.minute)
+        @job.ping!
+        Timecop.travel(10.minutes)
+        notification.should_receive(:alert)
+        @job.expire!
+        Timecop.travel(2.minutes)
+        # Job already expired, we shouldn't get another notification that this late ping is early
+        notification.should_not_receive(:early_alert)
+        @job.ping!
+      end
+
+      it "sends early alert if job is expired, late ping happened and the next ping was early" do
+        notification = PagerdutyNotification.create!({:name => "Test notification", :value => "dummy value"})
+        notification.stub(:alert)
+        notification.stub(:early_alert)
+        @job.notifications << notification
+        @job.save!
+        Timecop.travel(1.minute)
+        @job.ping!
+        Timecop.travel(10.minutes)
+        @job.expire!
+        Timecop.travel(2.minutes)
+        @job.ping!
+        Timecop.travel(1.minute)
+        # We should get an early alert now, though
+        notification.should_receive(:early_alert)
+        @job.ping!
+      end
     end
   end
 
@@ -238,6 +284,52 @@ describe Job do
         Timecop.travel(11.minutes)
         notification.should_receive(:alert)
         @job.expire!
+      end
+
+      it "sends early alert if pinged too early" do
+        notification = PagerdutyNotification.create!({:name => "Test notification", :value => "dummy value"})
+        notification.stub(:alert)
+        notification.stub(:early_alert)
+        @job.notifications << notification
+        @job.save!
+        Timecop.travel(1.minute)
+        notification.should_receive(:early_alert)
+        @job.ping!
+      end
+
+      it "does not send early alert if job is already late" do
+        notification = PagerdutyNotification.create!({:name => "Test notification", :value => "dummy value"})
+        notification.stub(:alert)
+        notification.stub(:early_alert)
+        @job.notifications << notification
+        @job.save!
+        Timecop.travel(1.minute)
+        @job.ping!
+        Timecop.travel(10.minutes)
+        notification.should_receive(:alert)
+        @job.expire!
+        Timecop.travel(2.minutes)
+        # Job already expired, we shouldn't get another notification that this late ping is early
+        notification.should_not_receive(:early_alert)
+        @job.ping!
+      end
+
+      it "sends early alert if job is expired, late ping happened and the next ping was early" do
+        notification = PagerdutyNotification.create!({:name => "Test notification", :value => "dummy value"})
+        notification.stub(:alert)
+        notification.stub(:early_alert)
+        @job.notifications << notification
+        @job.save!
+        Timecop.travel(1.minute)
+        @job.ping!
+        Timecop.travel(10.minutes)
+        @job.expire!
+        Timecop.travel(2.minutes)
+        @job.ping!
+        Timecop.travel(1.minute)
+        # We should get an early alert now, though
+        notification.should_receive(:early_alert)
+        @job.ping!
       end
     end
   end

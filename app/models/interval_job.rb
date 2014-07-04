@@ -6,8 +6,8 @@ class IntervalJob < Job
     superclass.model_name
   end
 
-  def calculate_next_scheduled_time!
-      self.next_scheduled_time = Time.now + frequency.seconds + extra_time
+  def calculate_next_scheduled_time(now = Time.now)
+    return now + frequency.seconds + extra_time
   end
 
   def frequency_str

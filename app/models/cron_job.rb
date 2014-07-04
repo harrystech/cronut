@@ -7,14 +7,17 @@ class CronJob < Job
     superclass.model_name
   end
 
-  def calculate_next_scheduled_time!
-    now = Time.now
-
+  def set_next_scheduled_time!
     # Calculate to see if the last successful time was close enough to count as hitting the next cycle
     if (!buffer_time && self.last_successful_time_changed?) || buffer_time && self.last_successful_time && (self.last_successful_time + (self.buffer_time * 2).seconds >= self.next_scheduled_time && self.next_scheduled_time >= Time.now)
-      now = self.next_scheduled_time.in_time_zone("Eastern Time (US & Canada)") + 1.seconds
+      self.next_scheduled_time = calculate_next_scheduled_time(self.next_scheduled_time.in_time_zone("Eastern Time (US & Canada)") + 1.seconds)
+      return
     end
-    self.next_scheduled_time = Rufus::Scheduler.parse(cron_expression).next_time(now) + extra_time
+    super
+  end
+
+  def calculate_next_scheduled_time(now = Time.now)
+    return Rufus::Scheduler.parse(cron_expression).next_time(now) + extra_time
   end
 
   private

@@ -55,15 +55,22 @@ class Job < ActiveRecord::Base
 
   def check_if_pinged_within_buffer_time
     if !self.last_successful_time_changed? || !buffer_time || !next_scheduled_time || self.next_scheduled_time <= Time.now || (self.last_successful_time && self.last_successful_time + (self.buffer_time * 2).seconds >= self.next_scheduled_time)
-      calculate_next_scheduled_time!
+      set_next_scheduled_time!
     elsif buffer_time && next_scheduled_time && last_successful_time_changed?
-      notifications.each { |n|
-        n.early_alert(self)
-      }
+      # If the job had already expired, we don't want the subsequent ping to be considered "early"
+      if !last_successful_time_was || calculate_next_scheduled_time(last_successful_time_was) > last_successful_time
+        notifications.each { |n|
+          n.early_alert(self)
+        }
+      end
     end
   end
 
-  def calculate_next_scheduled_time!
+  def set_next_scheduled_time!
+    self.next_scheduled_time = calculate_next_scheduled_time
+  end
+
+  def calculate_next_scheduled_time(now = Time.now)
     raise "ERROR: calculate_next_scheduled_time must be defined"
   end
 
