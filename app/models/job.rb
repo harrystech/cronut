@@ -41,6 +41,10 @@ class Job < ActiveRecord::Base
     return (buffer_time ? buffer_time : 0).seconds
   end
 
+  def expired?
+    return last_successful_time && calculate_next_scheduled_time(last_successful_time) < Time.now
+  end
+
   def buffer_time_str
     return buffer_time ? Job.time_str(buffer_time) : "none"
   end

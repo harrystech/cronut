@@ -22,7 +22,9 @@
 
 <p>
   <b>Last successful time:</b>
-  <%= @job.last_successful_time_str %>
+  <span class="<%= @job.expired? ? "expired" : "" %>">
+    <%= @job.last_successful_time_str %>
+  </span>
 </p>
 
 <p>
