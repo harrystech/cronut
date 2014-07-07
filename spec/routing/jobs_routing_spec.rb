@@ -31,5 +31,9 @@ describe JobsController do
       delete("/jobs/1").should route_to("jobs#destroy", :id => "1")
     end
 
+    it "routes to #ping" do
+      post("/ping").should route_to("jobs#ping")
+    end
+
   end
 end

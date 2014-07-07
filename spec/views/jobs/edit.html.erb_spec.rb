@@ -2,7 +2,7 @@ require 'spec_helper'
 
 describe "jobs/edit" do
   before(:each) do
-    @job = assign(:job, stub_model(Job))
+    @job = assign(:job, stub_model(IntervalJob, {:name => "Test job", :frequency => 3600, :next_scheduled_time => Time.now}))
   end
 
   it "renders the edit job form" do

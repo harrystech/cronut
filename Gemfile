@@ -28,6 +28,7 @@ gem 'pagerduty'
 
 group :development, :test do
   gem 'rspec-rails'
+  gem 'rspec-activemodel-mocks'
   gem 'pry'
   gem 'sqlite3'
   gem 'timecop'

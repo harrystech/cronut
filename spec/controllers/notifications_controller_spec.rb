@@ -30,11 +30,17 @@ describe NotificationsController do
   # NotificationsController. Be sure to keep this updated too.
   let(:valid_session) { {} }
 
+  before(:each) do
+    basic_auth_login
+  end
+
   describe "GET index" do
     it "assigns all notifications as @notifications" do
+      @notifications = Notification.all
       notification = EmailNotification.create! valid_attributes
+      @notifications << notification
       get :index, {}, valid_session
-      assigns(:notifications).should eq([notification])
+      assigns(:notifications).should eq(@notifications)
     end
   end
 
@@ -106,7 +112,7 @@ describe NotificationsController do
         # specifies that the Notification created on the previous line
         # receives the :update_attributes message with whatever params are
         # submitted in the request.
-        EmailNotification.any_instance.should_receive(:update_attributes).with({ "name" => "MyString" })
+        expect_any_instance_of(EmailNotification).to receive(:update_attributes).with({ "name" => "MyString" })
         put :update, {:id => notification.to_param, :notification => { "name" => "MyString" }}, valid_session
       end
 

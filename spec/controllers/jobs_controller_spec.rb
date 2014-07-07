@@ -30,11 +30,18 @@ describe JobsController do
   # JobsController. Be sure to keep this updated too.
   let(:valid_session) { {} }
 
+  before(:each) do
+    basic_auth_login
+  end
+
   describe "GET index" do
     it "assigns all jobs as @jobs" do
+      @jobs = Job.all
       job = IntervalJob.create! valid_attributes
+      @jobs << job
+      @jobs.sort_by! { |j| [j.next_scheduled_time, j.id]}
       get :index, {}, valid_session
-      assigns(:jobs).should eq([job])
+      assigns(:jobs).should eq(@jobs)
     end
   end
 
@@ -106,7 +113,7 @@ describe JobsController do
         # specifies that the Job created on the previous line
         # receives the :update_attributes message with whatever params are
         # submitted in the request.
-        IntervalJob.any_instance.should_receive(:update_attributes).with({ "these" => "params" })
+        expect_any_instance_of(IntervalJob).to receive(:update_attributes).with({ "these" => "params" })
         put :update, {:id => job.to_param, :job => { "these" => "params" }}, valid_session
       end
 
@@ -178,14 +185,32 @@ describe JobsController do
     end
 
     it "ignores request with invalid token" do
-      request.env[JobsController::API_TOKEN_HEADER] = @token.token
+      request.env[JobsController::API_TOKEN_HEADER] = "x"
       get :ping, {:public_id => @job.public_id}, valid_session
       response.body.should eq "Invalid token."
     end
 
+    it "ignores pings with unencrypted public id" do
+      request.env[JobsController::API_TOKEN_HEADER] = @token.token
+      expect {
+        post :ping, {:public_id => @job.public_id}, valid_session
+      }.to raise_error(ActiveRecord::RecordNotFound)
+      @job.reload
+      @job.last_successful_time.should be_nil
+    end
+
+    it "ignores pings with encrypted wrong id" do
+      request.env[JobsController::API_TOKEN_HEADER] = @token.token
+      expect {
+        post :ping, {:public_id => Encryptor.encrypt("abc")}, valid_session
+      }.to raise_error(ActiveRecord::RecordNotFound)
+      @job.reload
+      @job.last_successful_time.should be_nil
+    end
+
     it "pings with valid token" do
-      request.env[JobsController::API_TOKEN_HEADER] = Encryptor.encrypt(@token.token)
-      get :ping, {:public_id => @job.public_id}, valid_session
+      request.env[JobsController::API_TOKEN_HEADER] = @token.token
+      post :ping, {:public_id => Encryptor.encrypt(@job.public_id)}, valid_session
       @job.reload
       response.status.should eq 200
       @job.last_successful_time.should_not be_nil

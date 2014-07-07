@@ -54,4 +54,16 @@ RSpec.configure do |config|
   # The different available types are documented in the features, such as in
   # https://relishapp.com/rspec/rspec-rails/v/3-0/docs
   config.infer_spec_type_from_file_location!
+
+  config.expect_with :rspec do |c|
+     c.syntax = [:should, :expect]
+   end
+
+  config.mock_with :rspec do |c|
+    c.syntax = [:should, :expect]
+  end
+end
+
+def basic_auth_login
+  request.env['HTTP_AUTHORIZATION'] = ActionController::HttpAuthentication::Basic.encode_credentials(ApplicationController::DEFAULT_USERNAME, ApplicationController::DEFAULT_PASSWORD)
 end

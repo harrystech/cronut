@@ -102,10 +102,10 @@ class JobsController < ApplicationController
   end
 
   def ping
-    @job = Job.find_by_public_id(Encryptor.decrypt(params[:public_id]))
-
-    if !@job
-      raise ActionController::RoutingError.new('Not Found')
+    begin
+      @job = Job.find_by_public_id!(Encryptor.decrypt(params[:public_id]))
+    rescue Exception => e
+      raise ActiveRecord::RecordNotFound.new('Not Found')
     end
 
     @job.ping!
