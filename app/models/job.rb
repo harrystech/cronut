@@ -1,5 +1,6 @@
 class Job < ActiveRecord::Base
-  has_and_belongs_to_many :notifications
+  has_many :job_notifications, :dependent => :destroy
+  has_many :notifications, :through => :job_notifications, :uniq => true
   attr_accessible :name, :notifications, :notification_ids, :buffer_time
 
   before_create :create_public_id!, :if => Proc.new{|job| job.public_id.blank?}

@@ -11,7 +11,7 @@
 #
 # It's strongly recommended to check this file into your version control system.
 
-ActiveRecord::Schema.define(:version => 20140701225243) do
+ActiveRecord::Schema.define(:version => 20140707210442) do
 
   create_table "api_tokens", :force => true do |t|
     t.string   "name"
@@ -39,6 +39,13 @@ ActiveRecord::Schema.define(:version => 20140701225243) do
 
   add_index "delayed_jobs", ["priority", "run_at"], :name => "delayed_jobs_priority"
 
+  create_table "job_notifications", :force => true do |t|
+    t.integer "job_id"
+    t.integer "notification_id"
+  end
+
+  add_index "job_notifications", ["job_id", "notification_id"], :name => "index_job_notifications_on_job_id_and_notification_id", :unique => true
+
   create_table "jobs", :force => true do |t|
     t.string   "name",                 :null => false
     t.datetime "last_successful_time"
@@ -54,11 +61,6 @@ ActiveRecord::Schema.define(:version => 20140701225243) do
 
   add_index "jobs", ["next_scheduled_time"], :name => "index_jobs_on_next_scheduled_time"
   add_index "jobs", ["public_id"], :name => "index_jobs_on_public_id"
-
-  create_table "jobs_notifications", :id => false, :force => true do |t|
-    t.integer "job_id"
-    t.integer "notification_id"
-  end
 
   create_table "notifications", :force => true do |t|
     t.string   "name",       :null => false

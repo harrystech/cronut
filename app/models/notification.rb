@@ -1,5 +1,6 @@
 class Notification < ActiveRecord::Base
-  has_and_belongs_to_many :jobs
+  has_many :job_notifications, :dependent => :destroy
+  has_many :jobs, :through => :job_notifications, :uniq => true
   attr_accessible :name
   validates :name, :presence => true
 
