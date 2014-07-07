@@ -32,9 +32,6 @@ GEM
       multi_json (~> 1.0)
     arel (3.0.3)
     builder (3.0.4)
-    clockwork (0.7.5)
-      activesupport
-      tzinfo
     coderay (1.1.0)
     coffee-rails (3.2.2)
       coffee-script (>= 2.2.0)
@@ -142,7 +139,6 @@ PLATFORMS
 
 DEPENDENCIES
   activerecord-postgresql-adapter
-  clockwork
   coffee-rails (~> 3.2.1)
   jquery-rails
   pagerduty

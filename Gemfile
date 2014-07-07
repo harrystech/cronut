@@ -23,7 +23,6 @@ end
 gem 'jquery-rails'
 
 gem 'rufus-scheduler'
-gem 'clockwork'
 gem 'pagerduty'
 
 group :development, :test do
