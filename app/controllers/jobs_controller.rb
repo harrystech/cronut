@@ -103,7 +103,11 @@ class JobsController < ApplicationController
 
   def ping
     begin
-      @job = Job.find_by_public_id!(Encryptor.decrypt(params[:public_id]))
+      if Encryptor.enabled?
+        @job = Job.find_by_public_id!(Encryptor.decrypt(params[:public_id]))
+      else
+        @job = Job.find_by_public_id!(params[:public_id])
+      end
     rescue Exception => e
       raise ActiveRecord::RecordNotFound.new('Not Found')
     end

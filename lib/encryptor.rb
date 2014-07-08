@@ -12,6 +12,10 @@ class Encryptor
       OpenSSL::PKey::RSA.new(@@private_key).public_key
     end
 
-    @@private_key = ENV['THE_CRONIC_PRIVATE_KEY'] || OpenSSL::PKey::RSA.generate(1024)
+    def enabled?
+      !!ENV['THE_CRONIC_PRIVATE_KEY']
+    end
+
+    @@private_key = ENV['THE_CRONIC_PRIVATE_KEY']
   end
 end

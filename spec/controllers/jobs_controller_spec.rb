@@ -30,6 +30,10 @@ describe JobsController do
   # JobsController. Be sure to keep this updated too.
   let(:valid_session) { {} }
 
+  before(:all) do
+    ENV['THE_CRONIC_PRIVATE_KEY'] = ENV['THE_CRONIC_PRIVATE_KEY'] || OpenSSL::PKey::RSA.generate(1024).to_s
+  end
+
   before(:each) do
     basic_auth_login
   end
