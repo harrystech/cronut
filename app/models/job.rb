@@ -116,6 +116,6 @@ class Job < ActiveRecord::Base
   end
 
   def reset_status!
-    self.status = "READY" if !status_changed?
+    self.status = "READY" if !self.status_changed?
   end
 end
