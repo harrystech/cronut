@@ -39,7 +39,7 @@ describe JobsController do
       @jobs = Job.all
       job = IntervalJob.create! valid_attributes
       @jobs << job
-      @jobs.sort_by! { |j| [j.next_scheduled_time, j.id]}
+      @jobs.sort_by! { |j| [j.next_scheduled_time, j.name]}
       get :index, {}, valid_session
       assigns(:jobs).should eq(@jobs)
     end

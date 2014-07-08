@@ -22,14 +22,19 @@
 
 <p>
   <b>Last successful time:</b>
-  <span class="<%= @job.expired? ? "expired" : "" %>">
-    <%= @job.last_successful_time_str %>
-  </span>
+  <%= @job.last_successful_time_str %>
 </p>
 
 <p>
   <b>Next scheduled time:</b>
   <%= @job.next_scheduled_time_str %>
+</p>
+
+<p>
+  <b>Status:</b>
+  <span class="<%= @job.status.downcase %>">
+    <%= @job.status.capitalize %>
+  </span>
 </p>
 
 <p>

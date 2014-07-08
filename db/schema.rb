@@ -11,7 +11,7 @@
 #
 # It's strongly recommended to check this file into your version control system.
 
-ActiveRecord::Schema.define(:version => 20140707210442) do
+ActiveRecord::Schema.define(:version => 20140707215534) do
 
   create_table "api_tokens", :force => true do |t|
     t.string   "name"
@@ -47,16 +47,17 @@ ActiveRecord::Schema.define(:version => 20140707210442) do
   add_index "job_notifications", ["job_id", "notification_id"], :name => "index_job_notifications_on_job_id_and_notification_id", :unique => true
 
   create_table "jobs", :force => true do |t|
-    t.string   "name",                 :null => false
+    t.string   "name",                                      :null => false
     t.datetime "last_successful_time"
-    t.datetime "next_scheduled_time",  :null => false
-    t.string   "public_id",            :null => false
-    t.string   "type",                 :null => false
+    t.datetime "next_scheduled_time",                       :null => false
+    t.string   "public_id",                                 :null => false
+    t.string   "type",                                      :null => false
     t.integer  "frequency"
     t.string   "cron_expression"
     t.integer  "buffer_time"
-    t.datetime "created_at",           :null => false
-    t.datetime "updated_at",           :null => false
+    t.datetime "created_at",                                :null => false
+    t.datetime "updated_at",                                :null => false
+    t.string   "status",               :default => "READY", :null => false
   end
 
   add_index "jobs", ["next_scheduled_time"], :name => "index_jobs_on_next_scheduled_time"

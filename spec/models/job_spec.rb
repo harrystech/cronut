@@ -26,6 +26,7 @@ describe Job do
         @job.next_scheduled_time.to_i.should eq (@start_time + 600.seconds).to_i
         @job.last_successful_time.should be_nil
         @job.public_id.should_not be_nil
+        @job.status.should eq "READY"
       end
 
       it "pinging postpones next scheduled time" do
@@ -34,6 +35,7 @@ describe Job do
         @job.ping!
         @job.next_scheduled_time.to_i.should eq (ping_time + 600.seconds).to_i
         @job.last_successful_time.to_i.should eq ping_time.to_i
+        @job.status.should eq "ACTIVE"
       end
 
       it "expiring postpones next scheduled time" do
@@ -42,6 +44,7 @@ describe Job do
         @job.expire!
         @job.next_scheduled_time.to_i.should eq (expire_time + 600.seconds).to_i
         @job.last_successful_time.should be_nil
+        @job.status.should eq "EXPIRED"
       end
 
       it "expires" do
@@ -51,6 +54,7 @@ describe Job do
         @job.reload
         @job.next_scheduled_time.to_i.should > (expire_time + 600.seconds).to_i
         @job.last_successful_time.should be_nil
+        @job.status.should eq "EXPIRED"
       end
 
       it "expires and alerts notifications" do
@@ -61,6 +65,21 @@ describe Job do
         Timecop.travel(10.minutes)
         notification.should_receive(:alert)
         @job.expire!
+      end
+
+      it "change settings resets status and next scheduled time" do
+        Timecop.travel(10.minutes)
+        expire_time = Time.now
+        @job.expire!
+        @job.next_scheduled_time.to_i.should eq (expire_time + 600.seconds).to_i
+        @job.last_successful_time.should be_nil
+        @job.status.should eq "EXPIRED"
+        @job.frequency = 500
+        change_time = Time.now
+        @job.save!
+        @job.reload
+        @job.next_scheduled_time.to_i.should eq (change_time + 500.seconds).to_i
+        @job.status.should eq "READY"
       end
     end
 
@@ -78,6 +97,7 @@ describe Job do
         @job.next_scheduled_time.to_i.should eq (@start_time + 660.seconds).to_i
         @job.last_successful_time.should be_nil
         @job.public_id.should_not be_nil
+        @job.status.should eq "READY"
       end
 
       it "pinging outside of buffer does not postpones next scheduled time" do
@@ -86,6 +106,7 @@ describe Job do
         @job.ping!
         @job.next_scheduled_time.to_i.should eq (@start_time + 660.seconds).to_i
         @job.last_successful_time.to_i.should eq ping_time.to_i
+        @job.status.should eq "ACTIVE"
       end
 
       it "pinging within buffer postpones next scheduled time" do
@@ -94,6 +115,7 @@ describe Job do
         @job.ping!
         @job.next_scheduled_time.to_i.should eq (ping_time + 660.seconds).to_i
         @job.last_successful_time.to_i.should eq ping_time.to_i
+        @job.status.should eq "ACTIVE"
       end
 
       it "expiring postpones next scheduled time" do
@@ -102,6 +124,7 @@ describe Job do
         @job.expire!
         @job.next_scheduled_time.to_i.should eq (expire_time + 660.seconds).to_i
         @job.last_successful_time.should be_nil
+        @job.status.should eq "EXPIRED"
       end
 
       it "expires" do
@@ -111,6 +134,7 @@ describe Job do
         @job.reload
         @job.next_scheduled_time.to_i.should > (expire_time + 660.seconds).to_i
         @job.last_successful_time.should be_nil
+        @job.status.should eq "EXPIRED"
       end
 
       it "expires and alerts notifications" do
@@ -132,6 +156,7 @@ describe Job do
         Timecop.travel(1.minute)
         notification.should_receive(:early_alert)
         @job.ping!
+        @job.status.should eq "ACTIVE"
       end
 
       it "does not send early alert if job is already late" do
@@ -167,6 +192,21 @@ describe Job do
         # We should get an early alert now, though
         notification.should_receive(:early_alert)
         @job.ping!
+      end
+
+      it "change settings resets status and next scheduled time" do
+        Timecop.travel(11.minutes)
+        expire_time = Time.now
+        @job.expire!
+        @job.next_scheduled_time.to_i.should eq (expire_time + 660.seconds).to_i
+        @job.last_successful_time.should be_nil
+        @job.status.should eq "EXPIRED"
+        @job.frequency = 500
+        change_time = Time.now
+        @job.save!
+        @job.reload
+        @job.next_scheduled_time.to_i.should eq (change_time + 560.seconds).to_i
+        @job.status.should eq "READY"
       end
     end
   end
@@ -188,6 +228,7 @@ describe Job do
         @job.next_scheduled_time.to_i.should eq @next_time.to_i
         @job.last_successful_time.should be_nil
         @job.public_id.should_not be_nil
+        @job.status.should eq "READY"
       end
 
       it "pinging postpones next scheduled time" do
@@ -196,14 +237,15 @@ describe Job do
         @job.ping!
         @job.next_scheduled_time.to_i.should eq (@next_time + 600.seconds).to_i
         @job.last_successful_time.to_i.should eq ping_time.to_i
+        @job.status.should eq "ACTIVE"
       end
 
       it "expiring postpones next scheduled time" do
         Timecop.travel(10.minutes)
-        expire_time = Time.now
         @job.expire!
         @job.next_scheduled_time.to_i.should eq (@next_time + 600.seconds).to_i
         @job.last_successful_time.should be_nil
+        @job.status.should eq "EXPIRED"
       end
 
       it "expires" do
@@ -212,6 +254,7 @@ describe Job do
         @job.reload
         @job.next_scheduled_time.to_i.should eq (@next_time + 600.seconds).to_i
         @job.last_successful_time.should be_nil
+        @job.status.should eq "EXPIRED"
       end
 
       it "expires and alerts notifications" do
@@ -222,6 +265,19 @@ describe Job do
         Timecop.travel(10.minutes)
         notification.should_receive(:alert)
         @job.expire!
+      end
+
+      it "change settings resets status and next scheduled time" do
+        Timecop.travel(10.minutes)
+        @job.expire!
+        @job.next_scheduled_time.to_i.should eq (@next_time + 600.seconds).to_i
+        @job.last_successful_time.should be_nil
+        @job.status.should eq "EXPIRED"
+        @job.cron_expression = "*/5 * * * *"
+        @job.save!
+        @job.reload
+        @job.next_scheduled_time.to_i.should eq (@next_time + 300.seconds).to_i
+        @job.status.should eq "READY"
       end
     end
 
@@ -241,6 +297,7 @@ describe Job do
         @job.next_scheduled_time.to_i.should eq @next_time.to_i
         @job.last_successful_time.should be_nil
         @job.public_id.should_not be_nil
+        @job.status.should eq "READY"
       end
 
       it "pinging outside of buffer does not postpones next scheduled time" do
@@ -249,6 +306,7 @@ describe Job do
         @job.ping!
         @job.next_scheduled_time.to_i.should eq @next_time.to_i
         @job.last_successful_time.to_i.should eq ping_time.to_i
+        @job.status.should eq "ACTIVE"
       end
 
       it "pinging within buffer postpones next scheduled time" do
@@ -257,6 +315,7 @@ describe Job do
         @job.ping!
         @job.next_scheduled_time.to_i.should eq (@next_time + 600.seconds).to_i
         @job.last_successful_time.to_i.should eq ping_time.to_i
+        @job.status.should eq "ACTIVE"
       end
 
       it "expiring postpones next scheduled time" do
@@ -265,6 +324,7 @@ describe Job do
         @job.expire!
         @job.next_scheduled_time.to_i.should eq (@next_time + 600.seconds).to_i
         @job.last_successful_time.should be_nil
+        @job.status.should eq "EXPIRED"
       end
 
       it "expires" do
@@ -274,6 +334,7 @@ describe Job do
         @job.reload
         @job.next_scheduled_time.to_i.should eq (@next_time + 600.seconds).to_i
         @job.last_successful_time.should be_nil
+        @job.status.should eq "EXPIRED"
       end
 
       it "expires and alerts notifications" do
@@ -295,6 +356,7 @@ describe Job do
         Timecop.travel(1.minute)
         notification.should_receive(:early_alert)
         @job.ping!
+        @job.status.should eq "ACTIVE"
       end
 
       it "does not send early alert if job is already late" do
@@ -330,6 +392,20 @@ describe Job do
         # We should get an early alert now, though
         notification.should_receive(:early_alert)
         @job.ping!
+      end
+
+      it "change settings resets status and next scheduled time" do
+        Timecop.travel(11.minutes)
+        expire_time = Time.now
+        @job.expire!
+        @job.next_scheduled_time.to_i.should eq (@next_time + 600.seconds).to_i
+        @job.last_successful_time.should be_nil
+        @job.status.should eq "EXPIRED"
+        @job.cron_expression = "*/5 * * * *"
+        @job.save!
+        @job.reload
+        @job.next_scheduled_time.to_i.should eq (@next_time + 300.seconds).to_i
+        @job.status.should eq "READY"
       end
     end
   end
