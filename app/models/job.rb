@@ -26,6 +26,9 @@ class Job < ActiveRecord::Base
 
   def ping!
     self.last_successful_time = Time.now
+    check_if_ping_is_too_early
+    check_if_job_recovered
+    puts "Pinging job #{self.name}"
     self.status = "ACTIVE"
     self.save!
   end
@@ -33,11 +36,7 @@ class Job < ActiveRecord::Base
   def expire!
     self.status = "EXPIRED"
     job_notifications.each { |jn|
-      begin
-        jn.alert
-      rescue Exception => e
-        puts "Exception on alert trigger for #{self.name} - #{n.name}: #{e.inspect}"
-      end
+      jn.alert!
     }
     self.save!
   end
@@ -96,14 +95,25 @@ class Job < ActiveRecord::Base
   def check_if_pinged_within_buffer_time
     if !self.last_successful_time_changed? || !buffer_time || !next_scheduled_time || self.next_scheduled_time <= Time.now || (self.last_successful_time && self.last_successful_time + (self.buffer_time * 2).seconds >= self.next_scheduled_time)
       set_next_scheduled_time!
-    elsif buffer_time && next_scheduled_time && last_successful_time_changed?
-      # If the job had already expired, we don't want the subsequent ping to be considered "early"
-      # This can only happen if the job has buffer time set
-      if !last_successful_time_was || calculate_next_scheduled_time(last_successful_time_was) > last_successful_time
+    end
+  end
+
+  def check_if_ping_is_too_early
+    # If the job had already expired, we don't want the subsequent ping to be considered "early"
+    if buffer_time && self.status != "EXPIRED"
+      if last_successful_time < next_scheduled_time - (buffer_time * 2).seconds
         job_notifications.each { |jn|
           jn.early_alert
         }
       end
+    end
+  end
+
+  def check_if_job_recovered
+    if self.status == "EXPIRED"
+      job_notifications.each { |jn|
+        jn.recover!
+      }
     end
   end
 

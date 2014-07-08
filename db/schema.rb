@@ -42,6 +42,7 @@ ActiveRecord::Schema.define(:version => 20140707215534) do
   create_table "job_notifications", :force => true do |t|
     t.integer "job_id"
     t.integer "notification_id"
+    t.string  "last_event_key"
   end
 
   add_index "job_notifications", ["job_id", "notification_id"], :name => "index_job_notifications_on_job_id_and_notification_id", :unique => true

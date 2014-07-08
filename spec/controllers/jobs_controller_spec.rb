@@ -34,6 +34,11 @@ describe JobsController do
     basic_auth_login
   end
 
+  after(:all) do
+    ActiveRecord::Base.connection.reset_pk_sequence!('jobs')
+    ActiveRecord::Base.connection.reset_pk_sequence!('notifications')
+  end
+
   describe "GET index" do
     it "assigns all jobs as @jobs" do
       @jobs = Job.all

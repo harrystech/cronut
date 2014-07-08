@@ -5,6 +5,11 @@ describe Job do
     Timecop.return
   end
 
+  after(:all) do
+    ActiveRecord::Base.connection.reset_pk_sequence!('jobs')
+    ActiveRecord::Base.connection.reset_pk_sequence!('notifications')
+  end
+
   it "cannot create object of Job without type" do
     expect {
       Job.create!({:name => "Test job"})
@@ -52,7 +57,7 @@ describe Job do
         expire_time = Time.now
         Job.check_expired_jobs
         @job.reload
-        @job.next_scheduled_time.to_i.should > (expire_time + 600.seconds).to_i
+        @job.next_scheduled_time.to_i.should >= (expire_time + 600.seconds).to_i
         @job.last_successful_time.should be_nil
         @job.status.should eq "EXPIRED"
       end
@@ -60,11 +65,27 @@ describe Job do
       it "expires and alerts notifications" do
         notification = PagerdutyNotification.create!({:name => "Test notification", :value => "dummy value"})
         notification.stub(:alert)
+        notification.stub(:recover)
         @job.notifications << notification
         @job.save!
         Timecop.travel(10.minutes)
         notification.should_receive(:alert)
+        notification.should_not_receive(:recover)
         @job.expire!
+      end
+
+      it "expires and recovers" do
+        notification = PagerdutyNotification.create!({:name => "Test notification", :value => "dummy value"})
+        notification.stub(:alert)
+        notification.stub(:recover)
+        @job.notifications << notification
+        @job.save!
+        Timecop.travel(10.minutes)
+        @job.expire!
+        Timecop.travel(1.minutes)
+        notification.should_not_receive(:alert)
+        notification.should_receive(:recover)
+        @job.ping!
       end
 
       it "change settings resets status and next scheduled time" do
@@ -132,7 +153,7 @@ describe Job do
         expire_time = Time.now
         Job.check_expired_jobs
         @job.reload
-        @job.next_scheduled_time.to_i.should > (expire_time + 660.seconds).to_i
+        @job.next_scheduled_time.to_i.should >= (expire_time + 660.seconds).to_i
         @job.last_successful_time.should be_nil
         @job.status.should eq "EXPIRED"
       end
@@ -140,10 +161,12 @@ describe Job do
       it "expires and alerts notifications" do
         notification = PagerdutyNotification.create!({:name => "Test notification", :value => "dummy value"})
         notification.stub(:alert)
+        notification.stub(:recover)
         @job.notifications << notification
         @job.save!
         Timecop.travel(11.minutes)
         notification.should_receive(:alert)
+        notification.should_not_receive(:recover)
         @job.expire!
       end
 
@@ -151,10 +174,12 @@ describe Job do
         notification = PagerdutyNotification.create!({:name => "Test notification", :value => "dummy value"})
         notification.stub(:alert)
         notification.stub(:early_alert)
+        notification.stub(:recover)
         @job.notifications << notification
         @job.save!
         Timecop.travel(1.minute)
         notification.should_receive(:early_alert)
+        notification.should_not_receive(:recover)
         @job.ping!
         @job.status.should eq "ACTIVE"
       end
@@ -163,6 +188,7 @@ describe Job do
         notification = PagerdutyNotification.create!({:name => "Test notification", :value => "dummy value"})
         notification.stub(:alert)
         notification.stub(:early_alert)
+        notification.stub(:recover)
         @job.notifications << notification
         @job.save!
         Timecop.travel(1.minute)
@@ -173,6 +199,7 @@ describe Job do
         Timecop.travel(2.minutes)
         # Job already expired, we shouldn't get another notification that this late ping is early
         notification.should_not_receive(:early_alert)
+        notification.should_receive(:recover)
         @job.ping!
       end
 
@@ -260,12 +287,29 @@ describe Job do
       it "expires and alerts notifications" do
         notification = PagerdutyNotification.create!({:name => "Test notification", :value => "dummy value"})
         notification.stub(:alert)
+        notification.stub(:recover)
         @job.notifications << notification
         @job.save!
         Timecop.travel(10.minutes)
         notification.should_receive(:alert)
+        notification.should_not_receive(:recover)
         @job.expire!
       end
+
+      it "expires and recovers" do
+        notification = PagerdutyNotification.create!({:name => "Test notification", :value => "dummy value"})
+        notification.stub(:alert)
+        notification.stub(:recover)
+        @job.notifications << notification
+        @job.save!
+        Timecop.travel(10.minutes)
+        @job.expire!
+        Timecop.travel(1.minutes)
+        notification.should_not_receive(:alert)
+        notification.should_receive(:recover)
+        @job.ping!
+      end
+
 
       it "change settings resets status and next scheduled time" do
         Timecop.travel(10.minutes)
@@ -340,10 +384,12 @@ describe Job do
       it "expires and alerts notifications" do
         notification = PagerdutyNotification.create!({:name => "Test notification", :value => "dummy value"})
         notification.stub(:alert)
+        notification.stub(:recover)
         @job.notifications << notification
         @job.save!
         Timecop.travel(11.minutes)
         notification.should_receive(:alert)
+        notification.should_not_receive(:recover)
         @job.expire!
       end
 
@@ -351,10 +397,12 @@ describe Job do
         notification = PagerdutyNotification.create!({:name => "Test notification", :value => "dummy value"})
         notification.stub(:alert)
         notification.stub(:early_alert)
+        notification.stub(:recover)
         @job.notifications << notification
         @job.save!
         Timecop.travel(1.minute)
         notification.should_receive(:early_alert)
+        notification.should_not_receive(:recover)
         @job.ping!
         @job.status.should eq "ACTIVE"
       end
@@ -363,6 +411,7 @@ describe Job do
         notification = PagerdutyNotification.create!({:name => "Test notification", :value => "dummy value"})
         notification.stub(:alert)
         notification.stub(:early_alert)
+        notification.stub(:recover)
         @job.notifications << notification
         @job.save!
         Timecop.travel(1.minute)
@@ -373,6 +422,7 @@ describe Job do
         Timecop.travel(2.minutes)
         # Job already expired, we shouldn't get another notification that this late ping is early
         notification.should_not_receive(:early_alert)
+        notification.should_receive(:recover)
         @job.ping!
       end
 
@@ -380,6 +430,7 @@ describe Job do
         notification = PagerdutyNotification.create!({:name => "Test notification", :value => "dummy value"})
         notification.stub(:alert)
         notification.stub(:early_alert)
+        notification.stub(:recover)
         @job.notifications << notification
         @job.save!
         Timecop.travel(1.minute)
@@ -391,6 +442,7 @@ describe Job do
         Timecop.travel(1.minute)
         # We should get an early alert now, though
         notification.should_receive(:early_alert)
+        notification.should_not_receive(:recover)
         @job.ping!
       end
 
