@@ -103,11 +103,16 @@ class JobsController < ApplicationController
 
   def ping
     begin
+      str = params[:public_id]
       if Encryptor.enabled?
-        @job = Job.find_by_public_id!(Encryptor.decrypt(params[:public_id]))
-      else
-        @job = Job.find_by_public_id!(params[:public_id])
+        str = Encryptor.decrypt(str)
       end
+      array = str.split("-")
+      if (array[0].to_i - Time.now.to_i).abs > 30
+        puts "Timestamp does not match"
+        raise "Timestamp does not match"
+      end
+      @job = Job.find_by_public_id!(array[1])
     rescue Exception => e
       raise ActiveRecord::RecordNotFound.new('Not Found')
     end

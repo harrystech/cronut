@@ -181,6 +181,7 @@ describe JobsController do
         :name => "Test token",
         :token => token_value
       })
+      @str = "#{(Time.now - 5.seconds).to_i.to_s}-#{@job.public_id}"
     end
 
     after(:each) do
@@ -189,29 +190,40 @@ describe JobsController do
     end
 
     it "ignores request without token" do
-      get :ping, {:public_id => @job.public_id}, valid_session
+      get :ping, {:public_id => @str}, valid_session
       response.body.should eq "Empty token given."
     end
 
     it "ignores request with invalid token" do
       request.env[JobsController::API_TOKEN_HEADER] = "x"
-      get :ping, {:public_id => @job.public_id}, valid_session
+      get :ping, {:public_id => @str}, valid_session
       response.body.should eq "Invalid token."
     end
 
     it "ignores pings with unencrypted public id" do
       request.env[JobsController::API_TOKEN_HEADER] = @token.token
       expect {
-        post :ping, {:public_id => @job.public_id}, valid_session
+        post :ping, {:public_id => @str}, valid_session
       }.to raise_error(ActiveRecord::RecordNotFound)
       @job.reload
       @job.last_successful_time.should be_nil
     end
 
     it "ignores pings with encrypted wrong id" do
+      wrong_str = "#{Time.now.to_i.to_s}-abc"
       request.env[JobsController::API_TOKEN_HEADER] = @token.token
       expect {
-        post :ping, {:public_id => Encryptor.encrypt("abc")}, valid_session
+        post :ping, {:public_id => Encryptor.encrypt(wrong_str)}, valid_session
+      }.to raise_error(ActiveRecord::RecordNotFound)
+      @job.reload
+      @job.last_successful_time.should be_nil
+    end
+
+    it "ignores pings with encrypted wrong date" do
+      wrong_str = "#{(Time.now - 31.seconds).to_i.to_s}-#{@job.public_id}"
+      request.env[JobsController::API_TOKEN_HEADER] = @token.token
+      expect {
+        post :ping, {:public_id => Encryptor.encrypt(wrong_str)}, valid_session
       }.to raise_error(ActiveRecord::RecordNotFound)
       @job.reload
       @job.last_successful_time.should be_nil
@@ -219,7 +231,7 @@ describe JobsController do
 
     it "pings with valid token" do
       request.env[JobsController::API_TOKEN_HEADER] = @token.token
-      post :ping, {:public_id => Encryptor.encrypt(@job.public_id)}, valid_session
+      post :ping, {:public_id => Encryptor.encrypt(@str)}, valid_session
       @job.reload
       response.status.should eq 200
       @job.last_successful_time.should_not be_nil
