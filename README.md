@@ -127,7 +127,11 @@ If a ping is received at 12:09pm, the next scheduled time will be the next calcu
 Jobs that have successfully received pings before the previously expected schedule times have the status "Active", while jobs that have not been pinged have the status "Expired." Jobs that are newly created or have their configurations changed and have not been pinged yet carry the status of "Ready."
 
 ###Ping
-To hook your scheduled job into this app, you would need to make sure it pings the app. To do that, just make sure your job makes a `POST` request to [/ping](http://localhost:3000/ping) with the parameter `public_id` with the `public_id` of the specified job. You would also need to include the generated API token (see above under **Security**) as an HTTP header with field name `X-THE_CRONIC-API-TOKEN`
+To hook your scheduled job into this app, you would need to make sure it pings the app. To do that, just make sure your job makes a `POST` request to [/ping](http://localhost:3000/ping) with the parameter `public_id` with the value of current Unix epoch time appended with a hypen and the `public_id` of the specified job. You would also need to include the generated API token (see above under **Security**) as an HTTP header with field name `X-THE_CRONIC-API-TOKEN`
+
+**Example:**
+
+	1404863196-<public_id>
 
 ###Notifications
 The app currently supports notification via email and PagerDuty. You can add as many notification methods as you like through the admin interface. Each job can have multiple notification methods, and each notification method can be associated to multiple jobs. For email notifications, enter your email address in the `value` field. For PagerDuty notifications, you would need to enter the API key in the `value` field.
