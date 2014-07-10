@@ -12,13 +12,18 @@ class EmailNotification < Notification
   end
 
   def early_alert(job)
-    ActionMailer::Base.mail(:from => "thecronic@harrys.com", :to => self.value, :subject => "Job \"#{job.name}\" ran too early", :body => "#{job.name} -  Ran at: #{job.last_successful_time_str}, Scheduled for: #{job.next_scheduled_time_str}").deliver!
+    ActionMailer::Base.mail(:from => "thecronic@harrys.com", :to => self.value, :subject => "Job \"#{job.name}\" ran too early", :body => "#{job.name} -  Ran at: #{now_date_str}, Scheduled for: #{job.next_scheduled_time_str}").deliver!
   end
 
   def recover(job, event_key)
     if event_key
       expired_date_str = Time.at(event_key.to_i).in_time_zone("Eastern Time (US & Canada)").strftime("%B %-d, %Y %l:%M:%S%P EST")
-      ActionMailer::Base.mail(:from => "thecronic@harrys.com", :to => self.value, :subject => "Recovered: Job \"#{job.name}\" ran late successfully", :body => "#{job.name} -  Ran at: #{job.last_successful_time_str}, Scheduled for: #{expired_date_str}").deliver!
+      ActionMailer::Base.mail(:from => "thecronic@harrys.com", :to => self.value, :subject => "Recovered: Job \"#{job.name}\" ran late successfully", :body => "#{job.name} -  Ran at: #{now_date_str}, Scheduled for: #{expired_date_str}").deliver!
     end
+  end
+
+  private
+  def now_date_str
+    return Time.now.in_time_zone("Eastern Time (US & Canada)").strftime("%B %-d, %Y %l:%M:%S%P EST")
   end
 end

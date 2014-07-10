@@ -68,6 +68,9 @@ variable as a comma-separated list of IP addresses:
 
     curl -s http://ifconfig.me
     THE_CRONIC_WHITELIST: '10.0.1.2,192.168.1.34'
+Additionally, an implementation of API tokens is included for use when a scheduled job is pinging the app (see below). To generate said token, run the script:
+
+	$ script/generate-api-token -n <name_of_token>
 
 You may optionally set a private RSA key to encrypt the `public_id` to uniquely identify each job during each ping. If you do so, make sure when you make your ping requests (see below) to encrypt your `POST` params for `public_id`. Set the following environment variable:
 
@@ -124,7 +127,7 @@ If a ping is received at 12:09pm, the next scheduled time will be the next calcu
 Jobs that have successfully received pings before the previously expected schedule times have the status "Active", while jobs that have not been pinged have the status "Expired." Jobs that are newly created or have their configurations changed and have not been pinged yet carry the status of "Ready."
 
 ###Ping
-To hook your scheduled job into this app, you would need to make sure it pings the app. To do that, just make sure your job makes a `POST` request to [/ping](http://localhost:3000/ping) with the parameter `public_id` with the value of current Unix epoch time appended with a hypen and the `public_id` of the specified job.
+To hook your scheduled job into this app, you would need to make sure it pings the app. To do that, just make sure your job makes a `POST` request to [/ping](http://localhost:3000/ping) with the parameter `public_id` with the value of current Unix epoch time appended with a hypen and the `public_id` of the specified job. You would also need to include the generated API token (see above under **Security**) as an HTTP header with field name `X-THE_CRONIC-API-TOKEN`
 
 **Example:**
 
