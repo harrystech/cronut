@@ -3,7 +3,7 @@ the_cronic
 
 Nothing but an open-source scheduling-based dead man's switch server implementation in Rails. Do you have regularly scheduled tasks that need to be executed throughout the day, but not sure if they have been completed or not? the_cronic may be the solution allow you to relax and leave you in a wonderful place.
 
-the_cronic allows you to set a schedule of when expected jobs are to happen using intervals or cron expressions, and notify you if an expected job hasn't run. the_cronic expects each of your job to `curl` a unique URL and if that has not happened by a certain time, it will notify you. It works out of the box with Heroku along with some simple security features, but it is flexible to be deployed in other ways.
+the_cronic allows you to set a schedule of when expected jobs are to happen using intervals or cron expressions, and notify you if an expected job hasn't run. the_cronic expects each of your jobs to send a POST request (such as using `curl`) to a unique URL and if that has not happened by a certain time, it will notify you. It works out of the box with Heroku along with some simple security features, but it is flexible to be deployed in other ways.
 
 Features
 --------
@@ -31,12 +31,12 @@ Setting Up a Scheduler
 --------------------
 You will need to set up a scheduler in order to continously monitor when jobs as they (may or may not) expire. the_cronic supports using Clockwork or Heroku Scheduler. Clockwork is recommended when you want further granularity, as the Heroku Scheduler can schedule jobs to run only as often as every 10 minutes. By default, the scheduler will run every minute with Clockwork.
 
-###Using Clockwork
+###Option 1: Using Clockwork
 Start up a new clock dyno that runs:
 
 	$ clockwork lib/clock.rb
 
-###Using Heroku Scheduler
+###Option 2: Using Heroku Scheduler
 For a cheaper (and possibly free) alternative, you can use Heroku Scheduler instead. Keep in mind that the scheduler can only run as often as every 10 minutes, so expired jobs may not be caught as soon as you like. First, add Heroku Scheduler to your app:
 
 	$ heroku addons:add scheduler
@@ -85,11 +85,11 @@ Interval jobs are jobs that occur in regular intervals. These jobs are expected 
 
 **Example:** An interval job with frequency of 600 seconds (10 minutes)
 
-The job is created at 12:00pm, so the next scheduled time is 12:10pm.
+The job is created at 4:10pm, so the next scheduled time is 4:20pm.
 
-If the job does not receive a ping by 12:10pm, notifications are sent.
+If the job does not receive a ping by 4:20pm, notifications are sent.
 
-If a ping is received at 12:06pm, its next schedule time will be 600 seconds from that, which is 12:16pm.
+If a ping is received at 4:16pm, its next schedule time will be 600 seconds from that, which is 4:26pm.
 
 
 ###Cron Jobs
@@ -97,30 +97,30 @@ Cron jobs are jobs that are run based on a cron expression.
 
 **Example:** A cron job with the expression `*/10 * * * *` (every 10 minutes on the clock)
 
-The job is created at 12:02pm, the next scheduled time is 12:10pm.
+The job is created at 4:12pm, the next scheduled time is 4:20pm.
 
-If the job does not receive a ping by 12:10pm, notifications are sent.
+If the job does not receive a ping by 4:20pm, notifications are sent.
 
-If a ping is received at 12:06pm, its next schedule time will be the next calculated time using the cron expression based on the previous scheduled time (12:10pm), which is 12:20pm.
+If a ping is received at 4:16pm, its next schedule time will be the next calculated time using the cron expression based on the previous scheduled time (4:20pm), which is 4:30pm.
 
 ###Buffer Time
 Sometimes you may want further granularity of when a job is actually run. For instance, if you have a job that is scheduled to run once a day, it may not be good enough to know just that it ran within that period of time without knowing *when*. The buffer time attribute allows you to specify the time in seconds in which a ping is good as long as it falls within that number of seconds before *or* after the expected schedule time.
 
 **Example:** An interval job with frequency of 600 seconds (10 minutes) with a buffer time of 120 seconds (2 minutes)
 
-The job is created at 12:00pm, so the next scheduled time is 12:12pm, because of the buffer time.
+The job is created at 4:10pm, so the next scheduled time is 4:22pm, because of the buffer time.
 
-If a ping is received at 12:03pm, an early alert notification is sent and the next scheduled time is unchanged, as it falls outside of the time window when a ping is acceptable.
+If a ping is received at 4:13pm, an early alert notification is sent and the next scheduled time is unchanged, as it falls outside of the time window when a ping is acceptable.
 
-If a ping is received at 12:09pm, the next scheduled time will be 600 seconds + 120 seconds from that, which is 12:21pm.
+If a ping is received at 4:19pm, the next scheduled time will be 600 seconds + 120 seconds from that, which is 4:31pm.
 
 **Example:** A cron job with the expression `*/10 * * * *` (every 10 minutes on the clock) with a buffer time of 120 seconds (2 minutes)
 
-The job is created at 12:02pm, so the next scheduled time is 12:12pm, because of the buffer time.
+The job is created at 4:12pm, so the next scheduled time is 4:22pm, because of the buffer time.
 
-If a ping is received at 12:05pm, an early alert notification is sent and the next scheduled time is unchanged, as it falls outside of the time window when a ping is acceptable.
+If a ping is received at 4:15pm, an early alert notification is sent and the next scheduled time is unchanged, as it falls outside of the time window when a ping is acceptable.
 
-If a ping is received at 12:09pm, the next scheduled time will be the next calculated time using the cron expression based on the previous scheduled time (12:12pm) plus the buffer time, which is 12:22pm.
+If a ping is received at 4:19pm, the next scheduled time will be the next calculated time using the cron expression based on the previous scheduled time (4:22pm) plus the buffer time, which is 4:32pm.
 
 
 ###Status
