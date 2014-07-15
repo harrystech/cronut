@@ -31,7 +31,7 @@ describe JobsController do
   let(:valid_session) { {} }
 
   before(:all) do
-    ENV['THE_CRONIC_PRIVATE_KEY'] = ENV['THE_CRONIC_PRIVATE_KEY'] || OpenSSL::PKey::RSA.generate(1024).to_s
+    ENV['CRONUT_PRIVATE_KEY'] = ENV['CRONUT_PRIVATE_KEY'] || OpenSSL::PKey::RSA.generate(1024).to_s
   end
 
   before(:each) do

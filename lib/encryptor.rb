@@ -13,9 +13,9 @@ class Encryptor
     end
 
     def enabled?
-      !!ENV['THE_CRONIC_PRIVATE_KEY']
+      !!ENV['CRONUT_PRIVATE_KEY']
     end
 
-    @@private_key = ENV['THE_CRONIC_PRIVATE_KEY']
+    @@private_key = ENV['CRONUT_PRIVATE_KEY']
   end
 end
