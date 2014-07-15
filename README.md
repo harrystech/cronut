@@ -1,7 +1,7 @@
 Cronut
 ======
 
-Nothing but an open-source scheduling-based dead man's switch server implementation in Rails. Do you have regularly scheduled tasks that need to be executed throughout the day, but not sure if they have been completed or not? Cronut may be the solution allow you to relax and leave you in a wonderful place.
+Cronut is an open-source scheduling-based dead man's switch server implementation in Rails. Do you have regularly scheduled tasks that need to be executed throughout the day, but not sure if they have been completed or not? Cronut may hit the sweet spot for you.
 
 Cronut allows you to set a schedule of when expected jobs are to happen using intervals or cron expressions, and notify you if an expected job hasn't run. Cronut expects each of your jobs to send a POST request (such as using `curl`) to a unique URL and if that has not happened by a certain time, it will notify you. It works out of the box with Heroku along with some simple security features, but it is flexible to be deployed in other ways.
 
