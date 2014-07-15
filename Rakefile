@@ -4,4 +4,4 @@
 
 require File.expand_path('../config/application', __FILE__)
 
-TheCronic::Application.load_tasks
+Cronut::Application.load_tasks

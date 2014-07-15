@@ -1,9 +1,9 @@
-the_cronic
-==========
+Cronut
+======
 
-Nothing but an open-source scheduling-based dead man's switch server implementation in Rails. Do you have regularly scheduled tasks that need to be executed throughout the day, but not sure if they have been completed or not? the_cronic may be the solution allow you to relax and leave you in a wonderful place.
+Cronut is an open-source scheduling-based dead man's switch server implementation in Rails. Do you have regularly scheduled tasks that need to be executed throughout the day, but not sure if they have been completed or not? Cronut may hit the sweet spot for you/
 
-the_cronic allows you to set a schedule of when expected jobs are to happen using intervals or cron expressions, and notify you if an expected job hasn't run. the_cronic expects each of your jobs to send a POST request (such as using `curl`) to a unique URL and if that has not happened by a certain time, it will notify you. It works out of the box with Heroku along with some simple security features, but it is flexible to be deployed in other ways.
+Cronut allows you to set a schedule of when expected jobs are to happen using intervals or cron expressions, and notify you if an expected job hasn't run. Cronut expects each of your jobs to send a POST request (such as using `curl`) to a unique URL and if that has not happened by a certain time, it will notify you. It works out of the box with Heroku along with some simple security features, but it is flexible to be deployed in other ways.
 
 Features
 --------
@@ -29,7 +29,7 @@ Open up <http://localhost:3000> in your browser
 
 Setting Up a Scheduler
 --------------------
-You will need to set up a scheduler in order to continously monitor when jobs as they (may or may not) expire. the_cronic supports using Clockwork or Heroku Scheduler. Clockwork is recommended when you want further granularity, as the Heroku Scheduler can schedule jobs to run only as often as every 10 minutes. By default, the scheduler will run every minute with Clockwork.
+You will need to set up a scheduler in order to continously monitor when jobs as they (may or may not) expire. Cronut supports using Clockwork or Heroku Scheduler. Clockwork is recommended when you want further granularity, as the Heroku Scheduler can schedule jobs to run only as often as every 10 minutes. By default, the scheduler will run every minute with Clockwork.
 
 ###Option 1: Using Clockwork
 Start up a new clock dyno that runs:
@@ -61,24 +61,24 @@ Security
 The default security is HTTP basic auth, with username `admin` and password
 `password`. To set new credentials, set the following environment variables:
 
-    THE_CRONIC_USERNAME: myuser
-    THE_CRONIC_PASSWORD: mypass
+    CRONUT_USERNAME: myuser
+    CRONUT_PASSWORD: mypass
 We also offer an IP address whitelist feature. Set the following environment
 variable as a comma-separated list of IP addresses:
 
     curl -s http://ifconfig.me
-    THE_CRONIC_WHITELIST: '10.0.1.2,192.168.1.34'
+    CRONUT_WHITELIST: '10.0.1.2,192.168.1.34'
 Additionally, an implementation of API tokens is included for use when a scheduled job is pinging the app (see below). To generate said token, run the script:
 
 	$ script/generate-api-token -n <name_of_token>
 
 You may optionally set a private RSA key to encrypt the `public_id` to uniquely identify each job during each ping. If you do so, make sure when you make your ping requests (see below) to encrypt your `POST` params for `public_id`. Set the following environment variable:
 
-	THE_CRONIC_PRIVATE_KEY: -----BEGIN RSA PRIVATE KEY----- <private_key> -----END RSA PRIVATE KEY-----
+	CRONUT_PRIVATE_KEY: -----BEGIN RSA PRIVATE KEY----- <private_key> -----END RSA PRIVATE KEY-----
 
 Usage
 -----
-On the_cronic dashboard, you can schedule two types of jobs: interval jobs and cron jobs.
+On Cronut dashboard, you can schedule two types of jobs: interval jobs and cron jobs.
 
 ###Interval Jobs
 Interval jobs are jobs that occur in regular intervals. These jobs are expected to run once per frequency in seconds, regardless of what the time is on the clock.
@@ -127,7 +127,7 @@ If a ping is received at 4:19pm, the next scheduled time will be the next calcul
 Jobs that have successfully received pings before the previously expected schedule times have the status "Active", while jobs that have not been pinged have the status "Expired." Jobs that are newly created or have their configurations changed and have not been pinged yet carry the status of "Ready."
 
 ###Ping
-To hook your scheduled job into this app, you would need to make sure it pings the app. To do that, just make sure your job makes a `POST` request to [/ping](http://localhost:3000/ping) with the parameter `public_id` with the value of current Unix epoch time appended with a hypen and the `public_id` of the specified job. You would also need to include the generated API token (see above under **Security**) as an HTTP header with field name `X-THE_CRONIC-API-TOKEN`
+To hook your scheduled job into this app, you would need to make sure it pings the app. To do that, just make sure your job makes a `POST` request to [/ping](http://localhost:3000/ping) with the parameter `public_id` with the value of current Unix epoch time appended with a hypen and the `public_id` of the specified job. You would also need to include the generated API token (see above under **Security**) as an HTTP header with field name `X-CRONUT-API-TOKEN`
 
 **Example:**
 

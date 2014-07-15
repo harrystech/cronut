@@ -1,5 +1,5 @@
 class JobsController < ApplicationController
-  API_TOKEN_HEADER = 'X-THE_CRONIC-API-TOKEN'
+  API_TOKEN_HEADER = 'X-CRONUT-API-TOKEN'
   before_filter(:only => [:ping]) { |c| c.verify_api_token }
   skip_before_filter :ip_whitelist, :only => [:ping]
   skip_before_filter :basic_auth, :only => [:ping]

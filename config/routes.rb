@@ -1,4 +1,4 @@
-TheCronic::Application.routes.draw do
+Cronut::Application.routes.draw do
   resources :notifications
   resources :jobs
 
