@@ -17,13 +17,13 @@ class EmailNotification < Notification
 
   def recover(job, event_key)
     if event_key
-      expired_date_str = Time.at(event_key.to_i).in_time_zone("Eastern Time (US & Canada)").strftime("%B %-d, %Y %l:%M:%S%P EST")
+      expired_date_str = Time.at(event_key.to_i).in_time_zone(TIME_ZONE).strftime("%B %-d, %Y %l:%M:%S%P %Z")
       ActionMailer::Base.mail(:from => "cronut@harrys.com", :to => self.value, :subject => "Recovered: Job \"#{job.name}\" ran late successfully", :body => "#{job.name} -  Ran at: #{now_date_str}, Scheduled for: #{expired_date_str}").deliver!
     end
   end
 
   private
   def now_date_str
-    return Time.now.in_time_zone("Eastern Time (US & Canada)").strftime("%B %-d, %Y %l:%M:%S%P EST")
+    return Time.now.in_time_zone(TIME_ZONE).strftime("%B %-d, %Y %l:%M:%S%P %Z")
   end
 end

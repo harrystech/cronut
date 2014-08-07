@@ -16,6 +16,28 @@ describe Job do
     }.to raise_error
   end
 
+  describe "#last_successful_time_str" do
+    it "returns the last scheduled time in the preferred time zone" do
+      stub_const("TIME_ZONE", "America/Los_Angeles")
+
+      job = IntervalJob.new
+      job.last_successful_time = Time.utc(2014, 8, 7, 12)
+
+      job.last_successful_time_str.should eq("August 7, 2014  5:00:00am PDT")
+    end
+  end
+
+  describe "#next_scheduled_time_str" do
+    it "returns the next scheduled time in the preferred time zone" do
+      stub_const("TIME_ZONE", "America/Los_Angeles")
+
+      job = IntervalJob.new
+      job.next_scheduled_time = Time.utc(2014, 8, 7, 12)
+
+      job.next_scheduled_time_str.should eq("August 7, 2014  5:00:00am PDT")
+    end
+  end
+
   describe "IntervalJobs" do
     describe "without buffer" do
       before(:each) do
@@ -309,7 +331,6 @@ describe Job do
         notification.should_receive(:recover)
         @job.ping!
       end
-
 
       it "change settings resets status and next scheduled time" do
         Timecop.travel(10.minutes)
