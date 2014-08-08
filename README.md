@@ -22,6 +22,7 @@ Getting Started
 Fork the repo and pull it down locally
 
     $ bundle install
+    $ bundle exec rake db:create
     $ bundle exec rake db:migrate
 	$ bundle exec rails s
 
@@ -34,7 +35,7 @@ You will need to set up a scheduler in order to continously monitor when jobs as
 ###Option 1: Using Clockwork
 Start up a new clock dyno that runs:
 
-	$ clockwork lib/clock.rb
+	$ bundle exec clockwork lib/clock.rb
 
 ###Option 2: Using Heroku Scheduler
 For a cheaper (and possibly free) alternative, you can use Heroku Scheduler instead. Keep in mind that the scheduler can only run as often as every 10 minutes, so expired jobs may not be caught as soon as you like. First, add Heroku Scheduler to your app:
@@ -71,7 +72,7 @@ We also offer an IP address whitelist feature. Set the following environment
 variable as a comma-separated list of IP addresses:
 
     curl -s http://ifconfig.me
-    CRONUT_WHITELIST: '10.0.1.2,192.168.1.34'
+    CRONUT_IP_WHITELIST: '10.0.1.2,192.168.1.34'
 Additionally, an implementation of API tokens is included for use when a scheduled job is pinging the app (see below). To generate said token, run the script:
 
 	$ script/generate-api-token -n <name_of_token>
