@@ -50,11 +50,11 @@ class Job < ActiveRecord::Base
   end
 
   def last_successful_time_str
-    return last_successful_time ? last_successful_time.in_time_zone("Eastern Time (US & Canada)").strftime("%B %-d, %Y %l:%M:%S%P EST") : "never"
+    return last_successful_time ? last_successful_time.in_time_zone(TIME_ZONE).strftime("%B %-d, %Y %l:%M:%S%P %Z") : "never"
   end
 
   def next_scheduled_time_str
-    return next_scheduled_time.in_time_zone("Eastern Time (US & Canada)").strftime("%B %-d, %Y %l:%M:%S%P EST")
+    return next_scheduled_time.in_time_zone(TIME_ZONE).strftime("%B %-d, %Y %l:%M:%S%P %Z")
   end
 
   def self.check_expired_jobs
