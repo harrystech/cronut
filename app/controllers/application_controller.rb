@@ -1,11 +1,13 @@
 class ApplicationController < ActionController::Base
   protect_from_forgery
+
   DEFAULT_USERNAME = "admin"
   DEFAULT_PASSWORD = "password"
-  DEFAULT_IP_WHITELIST = "127.0.0.1,0.0.0.0"
 
-  before_filter :ip_whitelist
+  before_filter :filter_for_ip_whitelist
   before_filter :basic_auth
+
+  private
 
   def basic_auth
     authenticate_or_request_with_http_basic do |username, password|
@@ -26,13 +28,14 @@ class ApplicationController < ActionController::Base
   end
 
   def ip_whitelist
-    allowed_ips = ENV.fetch("CRONUT_IP_WHITELIST", DEFAULT_IP_WHITELIST).split(",")
+    ENV["CRONUT_IP_WHITELIST"].to_s.split(",")
+  end
+
+  def filter_for_ip_whitelist
     ip = request.headers.fetch("X-Forwarded-For", request.ip)
-    if !allowed_ips.include?(ip)
+    if ip_whitelist.any? && !ip_whitelist.include?(ip)
       puts "ERROR: Failed IP check for #{ip}"
-      unless ENV.has_key?("CRONUT_IP_WHITELIST")
-        puts "You probably need to set CRONUT_IP_WHITELIST env variable"
-      end
+      puts "You probably need to update the CRONUT_IP_WHITELIST env variable"
       return render json: "Unauthorized", status: 401
     end
   end
