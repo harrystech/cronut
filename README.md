@@ -57,6 +57,10 @@ The default mail configuration uses SMTP with `ActionMailer`. To utilize email n
 	SMTP_DOMAIN: harrys.com
 	SMTP_ADDRESS: smtp.emailprovider.com
 
+Optionally set a from address that the mailer will use when sending
+notifications:
+	CRONUT_MAILER_EMAIL: cronut-notifications@harrys.com
+
 If you are based in a time zone other than Eastern Standard Time, you can specify the zone with an environment variable:
 
 	CRONUT_BASE_TIME_ZONE: America/Los_Angeles
