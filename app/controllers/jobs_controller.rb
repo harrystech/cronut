@@ -4,6 +4,8 @@ class JobsController < ApplicationController
   skip_before_filter :ip_whitelist, :only => [:ping]
   skip_before_filter :basic_auth, :only => [:ping]
 
+  protect_from_forgery except: :ping
+
   # GET /jobs
   # GET /jobs.json
   def index
