@@ -112,6 +112,8 @@ If the job does not receive a ping by 4:20pm, notifications are sent.
 
 If a ping is received at 4:16pm, its next schedule time will be the next calculated time using the cron expression based on the previous scheduled time (4:20pm), which is 4:30pm.
 
+**Note:** if your server's timezone differs from your local time zone, you may need to specify the time zone in your cron expression (appended to the end of the expression). A job that runs at 2:30am every day in Eastern Standard Time would have the following cron expression: `30 2 * * * America/New_York`.
+
 ###Buffer Time
 Sometimes you may want further granularity of when a job is actually run. For instance, if you have a job that is scheduled to run once a day, it may not be good enough to know just that it ran within that period of time without knowing *when*. The buffer time attribute allows you to specify the time in seconds in which a ping is good as long as it falls within that number of seconds before *or* after the expected schedule time.
 
