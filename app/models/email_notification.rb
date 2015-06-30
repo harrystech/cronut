@@ -1,8 +1,6 @@
 class EmailNotification < Notification
   validates :value, :presence => true
 
-  #   attr_accessible :value
-
   def self.model_name
     superclass.model_name
   end

@@ -1,9 +1,7 @@
 class JobNotification < ActiveRecord::Base
   belongs_to :job
   belongs_to :notification
-  
 
-  #attr_accessible :last_event_key
 
   def alert!
     begin

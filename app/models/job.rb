@@ -2,8 +2,6 @@ class Job < ActiveRecord::Base
   has_many :job_notifications, :dependent => :destroy
   has_many :notifications, -> { uniq }, :through => :job_notifications
 
-  # attr_accessible :name, :notifications, :notification_ids, :buffer_time
-
   before_create :create_public_id!, :if => ->{ self.public_id.blank?}
   before_save :check_if_pinged_within_buffer_time
   before_save :reset_status!
@@ -59,8 +57,7 @@ class Job < ActiveRecord::Base
   end
 
   def self.check_expired_jobs
-    maybe_expired = Job.where("next_scheduled_time < ?", Time.now)
-    expired_jobs  = maybe_expired.select { |job| job.next_scheduled_time < (Time.now + job.extra_time) }
+    expired_jobs = Job.where("next_scheduled_time < ?", Time.now)
     puts "#{expired_jobs.length} jobs expired"
 
     expired_jobs.each { |job|

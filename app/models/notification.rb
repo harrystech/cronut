@@ -4,8 +4,6 @@ class Notification < ActiveRecord::Base
 
   validates :name, :presence => true
 
-  # attr_accessible :name
-
   def alert(job)
     raise "ERROR: alert must be defined"
   end
