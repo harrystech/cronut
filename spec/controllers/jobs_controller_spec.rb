@@ -45,7 +45,7 @@ describe JobsController do
 
   describe "GET index" do
     it "assigns all jobs as @jobs" do
-      @jobs = Job.all
+      @jobs = Job.all.to_a
       job = IntervalJob.create! valid_attributes
       @jobs << job
       @jobs.sort_by! { |j| [j.next_scheduled_time, j.name]}
@@ -120,10 +120,9 @@ describe JobsController do
         job = IntervalJob.create! valid_attributes
         # Assuming there are no other jobs in the database, this
         # specifies that the Job created on the previous line
-        # receives the :update_attributes message with whatever params are
-        # submitted in the request.
-        expect_any_instance_of(IntervalJob).to receive(:update_attributes).with({ "these" => "params" })
-        put :update, {:id => job.to_param, :job => { "these" => "params" }}, valid_session
+        # receives the :update_attributes message with NO params, since these are not permitted attributes
+        expect_any_instance_of(IntervalJob).to receive(:update_attributes).with({ "name" => "updated name" })
+        put :update, {:id => job.to_param, :job => { "name" => "updated name" }}, valid_session
       end
 
       it "assigns the requested job as @job" do
@@ -144,16 +143,18 @@ describe JobsController do
         job = IntervalJob.create! valid_attributes
         # Trigger the behavior that occurs when invalid params are submitted
         IntervalJob.any_instance.stub(:save).and_return(false)
-        put :update, {:id => job.to_param, :job => {  }}, valid_session
-        assigns(:job).should eq(job)
+        expect {
+            put :update, {:id => job.to_param, :job => {  }}, valid_session
+        }.to raise_error(ActionController::ParameterMissing)
       end
 
-      it "re-renders the 'edit' template" do
+      it "to not allow requests without the mandatory params" do
         job = IntervalJob.create! valid_attributes
         # Trigger the behavior that occurs when invalid params are submitted
         IntervalJob.any_instance.stub(:save).and_return(false)
-        put :update, {:id => job.to_param, :job => {  }}, valid_session
-        response.should render_template("edit")
+        expect {
+            put :update, {:id => job.to_param, :job => {  }}, valid_session
+        }.to raise_error(ActionController::ParameterMissing)
       end
     end
   end
@@ -191,17 +192,17 @@ describe JobsController do
 
     it "ignores request without token" do
       get :ping, {:public_id => @str}, valid_session
-      response.body.should eq "Empty token given."
+      response.body.should eql "Empty token given."
     end
 
     it "ignores request with invalid token" do
-      request.env[JobsController::API_TOKEN_HEADER] = "x"
+      request.headers[JobsController::API_TOKEN_HEADER] = "x"
       get :ping, {:public_id => @str}, valid_session
       response.body.should eq "Invalid token."
     end
 
     it "ignores pings with unencrypted public id" do
-      request.env[JobsController::API_TOKEN_HEADER] = @token.token
+      request.headers[JobsController::API_TOKEN_HEADER] = @token.token
       expect {
         post :ping, {:public_id => @str}, valid_session
       }.to raise_error(ActiveRecord::RecordNotFound)
@@ -211,7 +212,7 @@ describe JobsController do
 
     it "ignores pings with encrypted wrong id" do
       wrong_str = "#{Time.now.to_i.to_s}-abc"
-      request.env[JobsController::API_TOKEN_HEADER] = @token.token
+      request.headers[JobsController::API_TOKEN_HEADER] = @token.token
       expect {
         post :ping, {:public_id => Encryptor.encrypt(wrong_str)}, valid_session
       }.to raise_error(ActiveRecord::RecordNotFound)
@@ -221,7 +222,7 @@ describe JobsController do
 
     it "ignores pings with encrypted wrong date" do
       wrong_str = "#{(Time.now - 31.seconds).to_i.to_s}-#{@job.public_id}"
-      request.env[JobsController::API_TOKEN_HEADER] = @token.token
+      request.headers[JobsController::API_TOKEN_HEADER] = @token.token
       expect {
         post :ping, {:public_id => Encryptor.encrypt(wrong_str)}, valid_session
       }.to raise_error(ActiveRecord::RecordNotFound)
@@ -230,7 +231,7 @@ describe JobsController do
     end
 
     it "pings with valid token" do
-      request.env[JobsController::API_TOKEN_HEADER] = @token.token
+      request.headers[JobsController::API_TOKEN_HEADER] = @token.token
       post :ping, {:public_id => Encryptor.encrypt(@str)}, valid_session
       @job.reload
       response.status.should eq 200

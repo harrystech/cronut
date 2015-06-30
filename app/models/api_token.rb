@@ -1,5 +1,5 @@
 class ApiToken < ActiveRecord::Base
-  attr_accessible :name, :token
+
   validates :name, :token, :presence => true
 
   def self.verify_token(token_in)

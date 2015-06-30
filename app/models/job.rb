@@ -1,13 +1,12 @@
 class Job < ActiveRecord::Base
   has_many :job_notifications, :dependent => :destroy
-  has_many :notifications, :through => :job_notifications, :uniq => true
-  attr_accessible :name, :notifications, :notification_ids, :buffer_time
+  has_many :notifications, -> { uniq }, :through => :job_notifications
 
-  before_create :create_public_id!, :if => Proc.new{|job| job.public_id.blank?}
+  before_create :create_public_id!, :if => ->{ self.public_id.blank?}
   before_save :check_if_pinged_within_buffer_time
   before_save :reset_status!
 
-  default_scope :order => 'next_scheduled_time, name'
+  default_scope ->{ order('next_scheduled_time, name') }
 
   validates :name, :presence => true
   validates_inclusion_of :status, :in => ["READY", "ACTIVE", "EXPIRED"]

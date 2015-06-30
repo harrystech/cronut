@@ -48,11 +48,11 @@ class JobsController < ApplicationController
     if params[:job][:type] == "CronJob"
       params[:job].delete(:type)
       params[:job].delete(:frequency)
-      @job = CronJob.new(params[:job])
+      @job = CronJob.new(params.require(:job).permit(:name, :notifications, :notification_ids, :buffer_time, :cron_expression))
     elsif params[:job][:type] == "IntervalJob"
       params[:job].delete(:type)
       params[:job].delete(:cron_expression)
-      @job = IntervalJob.new(params[:job])
+      @job = IntervalJob.new(params.require(:job).permit(:name, :notifications, :notification_ids, :buffer_time, :frequency))
     else
       @job = Job.new
       respond_to do |format|
@@ -79,7 +79,7 @@ class JobsController < ApplicationController
     @job = Job.find(params[:id])
 
     respond_to do |format|
-      if @job.update_attributes(params[:job])
+      if @job.update_attributes(job_params)
         format.html { redirect_to @job, notice: 'Job was successfully updated.' }
         format.json { head :no_content }
       else
@@ -125,5 +125,11 @@ class JobsController < ApplicationController
     if !token_response[:success]
       return render json: token_response[:error], status: 401
     end
+  end
+
+  private
+
+  def job_params
+    params.require(:job).permit(:name, :notifications, :notification_ids, :buffer_time)
   end
 end

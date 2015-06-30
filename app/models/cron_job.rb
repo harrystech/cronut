@@ -1,5 +1,4 @@
 class CronJob < Job
-  attr_accessible :cron_expression
   validates :cron_expression, :presence => true
   validate :validate_cron_expression
 

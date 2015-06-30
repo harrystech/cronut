@@ -1,5 +1,5 @@
 class PagerdutyNotification < Notification
-  attr_accessible :value
+
   validates :value, :presence => true
 
   def self.model_name
