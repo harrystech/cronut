@@ -59,7 +59,8 @@ class Job < ActiveRecord::Base
   end
 
   def self.check_expired_jobs
-    expired_jobs = Job.where("next_scheduled_time < ?", Time.now)
+    maybe_expired = Job.where("next_scheduled_time < ?", Time.now)
+    expired_jobs  = maybe_expired.select { |job| job.next_scheduled_time < (Time.now + job.extra_time) }
     puts "#{expired_jobs.length} jobs expired"
 
     expired_jobs.each { |job|
