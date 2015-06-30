@@ -1,6 +1,8 @@
 class ApiToken < ActiveRecord::Base
-  attr_accessible :name, :token
+
   validates :name, :token, :presence => true
+
+  #   attr_accessible :name, :token
 
   def self.verify_token(token_in)
     if token_in.blank?

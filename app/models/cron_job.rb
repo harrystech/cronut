@@ -1,7 +1,8 @@
 class CronJob < Job
-  attr_accessible :cron_expression
   validates :cron_expression, :presence => true
   validate :validate_cron_expression
+
+  #   attr_accessible :cron_expression
 
   def self.model_name
     superclass.model_name

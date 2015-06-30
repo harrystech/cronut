@@ -41,11 +41,9 @@ class NotificationsController < ApplicationController
   # POST /notifications.json
   def create
     if params[:notification][:type] == "EmailNotification"
-      params[:notification].delete(:type)
-      @notification = EmailNotification.new(params[:notification])
+      @notification = EmailNotification.new(notification_params)
     elsif params[:notification][:type] == "PagerdutyNotification"
-      params[:notification].delete(:type)
-      @notification = PagerdutyNotification.new(params[:notification])
+      @notification = PagerdutyNotification.new(notification_params)
     else
       @notification = Notification.new
       respond_to do |format|
@@ -72,7 +70,7 @@ class NotificationsController < ApplicationController
     @notification = Notification.find(params[:id])
 
     respond_to do |format|
-      if @notification.update_attributes(params[:notification])
+      if @notification.update_attributes(notification_params)
         format.html { redirect_to @notification, notice: 'Notification was successfully updated.' }
         format.json { head :no_content }
       else
@@ -92,5 +90,11 @@ class NotificationsController < ApplicationController
       format.html { redirect_to notifications_url }
       format.json { head :no_content }
     end
+  end
+
+  private
+  
+  def notification_params
+    params.require(:notification).permit(:name, :value)
   end
 end

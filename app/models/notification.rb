@@ -1,8 +1,10 @@
 class Notification < ActiveRecord::Base
   has_many :job_notifications, :dependent => :destroy
-  has_many :jobs, :through => :job_notifications, :uniq => true
-  attr_accessible :name
+  has_many :jobs, -> { uniq }, :through => :job_notifications
+
   validates :name, :presence => true
+
+  # attr_accessible :name
 
   def alert(job)
     raise "ERROR: alert must be defined"

@@ -1,6 +1,7 @@
 class IntervalJob < Job
-  attr_accessible :frequency
   validates :frequency, :presence => true
+
+  # attr_accessible :frequency
 
   def self.model_name
     superclass.model_name
