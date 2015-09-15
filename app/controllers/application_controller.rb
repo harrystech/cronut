@@ -11,20 +11,17 @@ class ApplicationController < ActionController::Base
 
   def basic_auth
     authenticate_or_request_with_http_basic do |username, password|
-      expected_username = ENV.fetch("CRONUT_USERNAME", DEFAULT_USERNAME)
-      expected_password = ENV.fetch("CRONUT_PASSWORD", DEFAULT_PASSWORD)
-      if username != expected_username
-        puts "Failed username"
-        return false
-      end
-      if expected_password == password
-        @passed_auth=true
-        return true
-      end
-      puts "ERROR: Failed basic auth"
-      request_http_basic_authentication
-      return false
+      (username == expected_username && password == expected_password) ||
+        request_http_basic_authentication
     end
+  end
+
+  def expected_username
+    ENV.fetch("CRONUT_USERNAME", DEFAULT_USERNAME)
+  end
+
+  def expected_password
+    ENV.fetch("CRONUT_PASSWORD", DEFAULT_PASSWORD)
   end
 
   def ip_whitelist

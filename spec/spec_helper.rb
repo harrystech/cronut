@@ -67,3 +67,7 @@ end
 def basic_auth_login
   request.env['HTTP_AUTHORIZATION'] = ActionController::HttpAuthentication::Basic.encode_credentials(ApplicationController::DEFAULT_USERNAME, ApplicationController::DEFAULT_PASSWORD)
 end
+
+def invalid_basic_auth_login
+  request.env['HTTP_AUTHORIZATION'] = ActionController::HttpAuthentication::Basic.encode_credentials("nottherightuser", "nottherightpassword")
+end

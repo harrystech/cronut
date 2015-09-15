@@ -35,6 +35,8 @@ group :development, :test do
   gem 'pry'
   gem 'sqlite3'
   gem 'timecop'
+  gem 'spring'
+  gem 'spring-commands-rspec'
 end
 
 # To use ActiveModel has_secure_password

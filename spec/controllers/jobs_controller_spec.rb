@@ -52,6 +52,14 @@ describe JobsController do
       get :index, {}, valid_session
       assigns(:jobs).should eq(@jobs)
     end
+
+    it "requires authorization" do
+      invalid_basic_auth_login
+
+      get :index, {}, valid_session
+
+      response.status.should eq(401)
+    end
   end
 
   describe "GET show" do
@@ -60,12 +68,29 @@ describe JobsController do
       get :show, {:id => job.to_param}, valid_session
       assigns(:job).should eq(job)
     end
+
+    it "requires authorization" do
+      job = IntervalJob.create! valid_attributes
+      invalid_basic_auth_login
+
+      get :show, {:id => job.to_param}, valid_session
+
+      response.status.should eq(401)
+    end
   end
 
   describe "GET new" do
     it "assigns a new job as @job" do
       get :new, {}, valid_session
       assigns(:job).should be_a_new(Job)
+    end
+
+    it "requires authorization" do
+      invalid_basic_auth_login
+
+      get :new, {}, valid_session
+
+      response.status.should eq(401)
     end
   end
 
@@ -74,6 +99,15 @@ describe JobsController do
       job = IntervalJob.create! valid_attributes
       get :edit, {:id => job.to_param}, valid_session
       assigns(:job).should eq(job)
+    end
+
+    it "requires authorization" do
+      job = IntervalJob.create! valid_attributes
+      invalid_basic_auth_login
+
+      get :edit, {:id => job.to_param}, valid_session
+
+      response.status.should eq(401)
     end
   end
 
@@ -111,6 +145,15 @@ describe JobsController do
         post :create, {:job => {  }}, valid_session
         response.should render_template("new")
       end
+    end
+
+    it "requires authorization" do
+      IntervalJob.any_instance.stub(:save).and_return(true)
+      invalid_basic_auth_login
+
+      post :create, {:job => valid_attributes}, valid_session
+
+      response.status.should eq(401)
     end
   end
 
@@ -157,6 +200,15 @@ describe JobsController do
         }.to raise_error(ActionController::ParameterMissing)
       end
     end
+
+    it "requires authorization" do
+      job = IntervalJob.create! valid_attributes
+      invalid_basic_auth_login
+
+      put :update, {:id => job.to_param, :job => { }}, valid_session
+
+      response.status.should eq(401)
+    end
   end
 
   describe "DELETE destroy" do
@@ -172,10 +224,20 @@ describe JobsController do
       delete :destroy, {:id => job.to_param}, valid_session
       response.should redirect_to(jobs_url)
     end
+
+    it "requires authorization" do
+      job = IntervalJob.create! valid_attributes
+      invalid_basic_auth_login
+
+      delete :destroy, {:id => job.to_param}, valid_session
+
+      response.status.should eq(401)
+    end
   end
 
   describe "GET ping" do
     before(:each) do
+      invalid_basic_auth_login
       @job = IntervalJob.create!({:name => "Test IntervalJob", :frequency => 600})
       token_value = SecureRandom.hex
       @token = ApiToken.create!({
