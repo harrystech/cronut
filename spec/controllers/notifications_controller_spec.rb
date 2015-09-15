@@ -47,6 +47,14 @@ describe NotificationsController do
       get :index, {}, valid_session
       assigns(:notifications).should eq(@notifications)
     end
+
+    it "requires authorization" do
+      invalid_basic_auth_login
+
+      get :index, {}, valid_session
+
+      response.status.should eq(401)
+    end
   end
 
   describe "GET show" do
@@ -55,12 +63,29 @@ describe NotificationsController do
       get :show, {:id => notification.to_param}, valid_session
       assigns(:notification).should eq(notification)
     end
+
+    it "requires authorization" do
+      notification = EmailNotification.create! valid_attributes
+      invalid_basic_auth_login
+
+      get :show, {:id => notification.to_param}, valid_session
+
+      response.status.should eq(401)
+    end
   end
 
   describe "GET new" do
     it "assigns a new notification as @notification" do
       get :new, {}, valid_session
       assigns(:notification).should be_a_new(Notification)
+    end
+
+    it "requires authorization" do
+      invalid_basic_auth_login
+
+      get :new, {}, valid_session
+
+      response.status.should eq(401)
     end
   end
 
@@ -69,6 +94,15 @@ describe NotificationsController do
       notification = EmailNotification.create! valid_attributes
       get :edit, {:id => notification.to_param}, valid_session
       assigns(:notification).should eq(notification)
+    end
+
+    it "requires authorization" do
+      notification = EmailNotification.create! valid_attributes
+      invalid_basic_auth_login
+
+      get :edit, {:id => notification.to_param}, valid_session
+
+      response.status.should eq(401)
     end
   end
 
@@ -106,6 +140,15 @@ describe NotificationsController do
         post :create, {:notification => { "name" => "invalid value" }}, valid_session
         response.should render_template("new")
       end
+    end
+
+    it "requires authorization" do
+      EmailNotification.any_instance.stub(:save).and_return(true)
+      invalid_basic_auth_login
+
+      post :create, {:job => valid_attributes}, valid_session
+
+      response.status.should eq(401)
     end
   end
 
@@ -151,6 +194,15 @@ describe NotificationsController do
         response.should render_template("edit")
       end
     end
+
+    it "requires authorization" do
+      notification = EmailNotification.create! valid_attributes
+      invalid_basic_auth_login
+
+      put :update, {:id => notification.to_param, :job => { }}, valid_session
+
+      response.status.should eq(401)
+    end
   end
 
   describe "DELETE destroy" do
@@ -166,6 +218,14 @@ describe NotificationsController do
       delete :destroy, {:id => notification.to_param}, valid_session
       response.should redirect_to(notifications_url)
     end
-  end
 
+    it "requires authorization" do
+      notification = EmailNotification.create! valid_attributes
+      invalid_basic_auth_login
+
+      delete :destroy, {:id => notification.to_param}, valid_session
+
+      response.status.should eq(401)
+    end
+  end
 end
