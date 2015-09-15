@@ -123,8 +123,11 @@ class JobsController < ApplicationController
   def verify_api_token
     token_response = ApiToken.verify_token(request.headers[API_TOKEN_HEADER])
     if !token_response[:success]
+      puts "Rejecting invalid API token"
       return render json: token_response[:error], status: 401
     end
+  rescue
+    puts "Exception verifying API token"
   end
 
   private
