@@ -13,7 +13,7 @@ describe Job do
   it "cannot create object of Job without type" do
     expect {
       Job.create!({:name => "Test job"})
-    }.to raise_error
+    }.to raise_error(RuntimeError)
   end
 
   describe "#last_successful_time_str" do

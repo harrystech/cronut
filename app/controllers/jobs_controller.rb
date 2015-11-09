@@ -133,6 +133,6 @@ class JobsController < ApplicationController
   private
 
   def job_params
-    params.require(:job).permit(:name, :notifications, :notification_ids, :buffer_time)
+    params.require(:job).permit(:name, :notifications, {notification_ids: []}, :frequency, :cron_expression, :buffer_time)
   end
 end

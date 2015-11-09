@@ -24,7 +24,7 @@ Fork the repo and pull it down locally
     $ bundle install
     $ bundle exec rake db:create
     $ bundle exec rake db:migrate
-	$ bundle exec rails s
+    $ bundle exec rails server
 
 Open up <http://localhost:3000> in your browser
 
