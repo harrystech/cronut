@@ -2,7 +2,8 @@ Cronut::Application.routes.draw do
   resources :notifications
   resources :jobs
 
-  post 'ping/' => "jobs#ping"
+  post 'ping' => "jobs#ping"
+  post 'v2/ping' => "jobs#ping", defaults: {use_base64: true}
 
   root to: 'jobs#index'
   # The priority is based upon order of creation:
