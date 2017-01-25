@@ -235,7 +235,7 @@ describe JobsController do
     end
   end
 
-  describe "GET ping" do
+  describe "POST ping" do
     before(:each) do
       invalid_basic_auth_login
       @job = IntervalJob.create!({:name => "Test IntervalJob", :frequency => 600})
@@ -295,6 +295,14 @@ describe JobsController do
     it "pings with valid token" do
       request.headers[JobsController::API_TOKEN_HEADER] = @token.token
       post :ping, {:public_id => Encryptor.encrypt(@str)}, valid_session
+      @job.reload
+      response.status.should eq 200
+      @job.last_successful_time.should_not be_nil
+    end
+
+    it "pings with valid token and a base64 encoded payload" do
+      request.headers[JobsController::API_TOKEN_HEADER] = @token.token
+      post :ping, {:public_id => Base64.strict_encode64(Encryptor.encrypt(@str)), use_base64: "true"}, valid_session
       @job.reload
       response.status.should eq 200
       @job.last_successful_time.should_not be_nil

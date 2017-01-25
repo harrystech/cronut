@@ -40,7 +40,8 @@ describe JobsController, type: :request do
     ActiveRecord::Base.connection.reset_pk_sequence!('notifications')
   end
 
-  describe "POST ping" do
+  context "ping" do
+
     before(:each) do
       #invalid_basic_auth_login
       @job = IntervalJob.create!({:name => "Test IntervalJob", :frequency => 600})
@@ -57,42 +58,61 @@ describe JobsController, type: :request do
       @token.destroy
     end
 
-    it "ignores pings with unencrypted public id" do
-      headers[JobsController::API_TOKEN_HEADER] = @token.token
-      expect {
-        post "/ping", {:public_id => @str}, headers
-      }.to raise_error(ActiveRecord::RecordNotFound)
-      @job.reload
-      @job.last_successful_time.should be_nil
+    describe "POST ping" do
+      it "ignores pings with unencrypted public id" do
+        headers[JobsController::API_TOKEN_HEADER] = @token.token
+        expect {
+          post "/ping", {:public_id => @str}, headers
+        }.to raise_error(ActiveRecord::RecordNotFound)
+        @job.reload
+        @job.last_successful_time.should be_nil
+      end
+
+      it "ignores pings with encrypted wrong id" do
+        wrong_str = "#{Time.now.to_i.to_s}-abc"
+        headers[JobsController::API_TOKEN_HEADER] = @token.token
+        expect {
+          post "/ping", {:public_id => Encryptor.encrypt(wrong_str)}, headers
+        }.to raise_error(ActiveRecord::RecordNotFound)
+        @job.reload
+        @job.last_successful_time.should be_nil
+      end
+
+      it "ignores pings with encrypted wrong date" do
+        wrong_str = "#{(Time.now - 31.seconds).to_i.to_s}-#{@job.public_id}"
+        headers[JobsController::API_TOKEN_HEADER] = @token.token
+        expect {
+          post "/ping", {:public_id => Encryptor.encrypt(wrong_str)}, headers
+        }.to raise_error(ActiveRecord::RecordNotFound)
+        @job.reload
+        @job.last_successful_time.should be_nil
+      end
+
+      it "pings with valid token" do
+        headers[JobsController::API_TOKEN_HEADER] = @token.token
+        post "/ping", {:public_id => Encryptor.encrypt(@str)}, headers
+        @job.reload
+        response.status.should eq 200
+        @job.last_successful_time.should_not be_nil
+      end
+
+      it "pings with valid token and a base 64 payload" do
+        headers[JobsController::API_TOKEN_HEADER] = @token.token
+        post "/ping", {:public_id => Base64.strict_encode64(Encryptor.encrypt(@str)), use_base64: true}, headers
+        @job.reload
+        response.status.should eq 200
+        @job.last_successful_time.should_not be_nil
+      end
     end
 
-    it "ignores pings with encrypted wrong id" do
-      wrong_str = "#{Time.now.to_i.to_s}-abc"
-      headers[JobsController::API_TOKEN_HEADER] = @token.token
-      expect {
-        post "/ping", {:public_id => Encryptor.encrypt(wrong_str)}, headers
-      }.to raise_error(ActiveRecord::RecordNotFound)
-      @job.reload
-      @job.last_successful_time.should be_nil
-    end
-
-    it "ignores pings with encrypted wrong date" do
-      wrong_str = "#{(Time.now - 31.seconds).to_i.to_s}-#{@job.public_id}"
-      headers[JobsController::API_TOKEN_HEADER] = @token.token
-      expect {
-        post "/ping", {:public_id => Encryptor.encrypt(wrong_str)}, headers
-      }.to raise_error(ActiveRecord::RecordNotFound)
-      @job.reload
-      @job.last_successful_time.should be_nil
-    end
-
-    it "pings with valid token" do
-      headers[JobsController::API_TOKEN_HEADER] = @token.token
-      post "/ping", {:public_id => Encryptor.encrypt(@str)}, headers
-      @job.reload
-      response.status.should eq 200
-      @job.last_successful_time.should_not be_nil
+    describe "POST v2/ping" do
+      it "pings with valid token and a base64 encoded payload" do
+        headers[JobsController::API_TOKEN_HEADER] = @token.token
+        post '/v2/ping', {:public_id => Base64.strict_encode64(Encryptor.encrypt(@str))}, headers
+        @job.reload
+        response.status.should eq 200
+        @job.last_successful_time.should_not be_nil
+      end
     end
   end
-
 end
