@@ -116,7 +116,7 @@ class JobsController < ApplicationController
         raise "Timestamp does not match"
       end
       @job = Job.find_by_public_id!(array[1])
-    rescue Exception => e
+    rescue StandardError => e
       puts e.message
       raise ActiveRecord::RecordNotFound.new('Not Found')
     end
