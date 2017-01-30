@@ -85,6 +85,37 @@ You may optionally set a private RSA key to encrypt the `public_id` to uniquely 
 
 	CRONUT_PRIVATE_KEY: -----BEGIN RSA PRIVATE KEY----- <private_key> -----END RSA PRIVATE KEY-----
 
+Sending an encrypted payload from ruby is fairly straightforward, you can simply
+encrypt the payload with :
+`OpenSSL::PKey::RSA.new(public_key_string_coming_from_the_env_a_file_or_anywhere_else).public_encrypt(str)`
+and attach this string to a POST request.
+
+Here is an example with faraday:
+
+```ruby
+host = "https://your.cronut.host.com"
+public_key = ENV["CRONUT_PUBLIC_KEY"] # Or from a file, the string should look like "-----BEGIN PUBLIC KEY-----\n<the key>\n-----END PUBLIC KEY-----"
+conn = Faraday.new(host) do |c|
+    c.request :url_encoded
+    c.use Faraday::Adapter::NetHttp
+    c.headers = {
+        "X-CRONUT-API-TOKEN" => "<token>"
+    }
+end
+
+conn.post "/ping/", {:public_id => OpenSSL::PKey::RSA.new(public_key).public_encrypt(str)}
+```
+
+Another (simpler) approach is to use the [ping-me-maybe gem](https://github.com/harrystech/ping-me-maybe)
+
+#### Base64 option
+
+Ruby uses a non standard string representation of the underlying encrypted bytes
+and this can be quite tricky to reproduce when trying to ping cronut from
+another environment, such as the JVM.
+In this can you can base 64 encode the encrypted bytes and use the `/v2/ping`
+endpoint instead. It expects the payload to be base 64 encoded by default
+
 Usage
 -----
 On Cronut dashboard, you can schedule two types of jobs: interval jobs and cron jobs.

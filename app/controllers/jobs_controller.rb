@@ -105,6 +105,9 @@ class JobsController < ApplicationController
     begin
       str = params[:public_id]
       if Encryptor.enabled?
+        if use_base64?
+          str = Base64.decode64(str)
+        end
         str = Encryptor.decrypt(str)
       end
       array = str.split("-")
@@ -113,7 +116,8 @@ class JobsController < ApplicationController
         raise "Timestamp does not match"
       end
       @job = Job.find_by_public_id!(array[1])
-    rescue Exception => e
+    rescue StandardError => e
+      puts e.message
       raise ActiveRecord::RecordNotFound.new('Not Found')
     end
 
@@ -131,6 +135,10 @@ class JobsController < ApplicationController
   end
 
   private
+
+  def use_base64?
+    params[:use_base64].to_s == "true"
+  end
 
   def job_params
     params.require(:job).permit(:name, :notifications, {notification_ids: []}, :frequency, :cron_expression, :buffer_time)
