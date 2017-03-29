@@ -32,12 +32,12 @@ Setting Up a Scheduler
 --------------------
 You will need to set up a scheduler in order to continously monitor when jobs as they (may or may not) expire. Cronut supports using Clockwork or Heroku Scheduler. Clockwork is recommended when you want further granularity, as the Heroku Scheduler can schedule jobs to run only as often as every 10 minutes. By default, the scheduler will run every minute with Clockwork.
 
-###Option 1: Using Clockwork
+### Option 1: Using Clockwork
 Start up a new clock dyno that runs:
 
 	$ bundle exec clockwork lib/clock.rb
 
-###Option 2: Using Heroku Scheduler
+### Option 2: Using Heroku Scheduler
 For a cheaper (and possibly free) alternative, you can use Heroku Scheduler instead. Keep in mind that the scheduler can only run as often as every 10 minutes, so expired jobs may not be caught as soon as you like. First, add Heroku Scheduler to your app:
 
 	$ heroku addons:add scheduler
@@ -120,7 +120,7 @@ Usage
 -----
 On Cronut dashboard, you can schedule two types of jobs: interval jobs and cron jobs.
 
-###Interval Jobs
+### Interval Jobs
 Interval jobs are jobs that occur in regular intervals. These jobs are expected to run once per frequency in seconds, regardless of what the time is on the clock.
 
 **Example:** An interval job with frequency of 600 seconds (10 minutes)
@@ -132,7 +132,7 @@ If the job does not receive a ping by 4:20pm, notifications are sent.
 If a ping is received at 4:16pm, its next schedule time will be 600 seconds from that, which is 4:26pm.
 
 
-###Cron Jobs
+### Cron Jobs
 Cron jobs are jobs that are run based on a cron expression.
 
 **Example:** A cron job with the expression `*/10 * * * *` (every 10 minutes on the clock)
@@ -145,7 +145,7 @@ If a ping is received at 4:16pm, its next schedule time will be the next calcula
 
 **Note:** if your server's timezone differs from your local time zone, you may need to specify the time zone in your cron expression (appended to the end of the expression). A job that runs at 2:30am every day in Eastern Standard Time would have the following cron expression: `30 2 * * * America/New_York`.
 
-###Buffer Time
+### Buffer Time
 Sometimes you may want further granularity of when a job is actually run. For instance, if you have a job that is scheduled to run once a day, it may not be good enough to know just that it ran within that period of time without knowing *when*. The buffer time attribute allows you to specify the time in seconds in which a ping is good as long as it falls within that number of seconds before *or* after the expected schedule time.
 
 **Example:** An interval job with frequency of 600 seconds (10 minutes) with a buffer time of 120 seconds (2 minutes)
@@ -165,17 +165,17 @@ If a ping is received at 4:15pm, an early alert notification is sent and the nex
 If a ping is received at 4:19pm, the next scheduled time will be the next calculated time using the cron expression based on the previous scheduled time (4:22pm) plus the buffer time, which is 4:32pm.
 
 
-###Status
+### Status
 Jobs that have successfully received pings before the previously expected schedule times have the status "Active", while jobs that have not been pinged have the status "Expired." Jobs that are newly created or have their configurations changed and have not been pinged yet carry the status of "Ready."
 
-###Ping
+### Ping
 To hook your scheduled job into this app, you would need to make sure it pings the app. To do that, just make sure your job makes a `POST` request to [/ping](http://localhost:3000/ping) with the parameter `public_id` with the value of current Unix epoch time appended with a hypen and the `public_id` of the specified job. You would also need to include the generated API token (see above under **Security**) as an HTTP header with field name `X-CRONUT-API-TOKEN`
 
 **Example:**
 
 	1404863196-<public_id>
 
-###Notifications
+### Notifications
 The app currently supports notification via email and PagerDuty. You can add as many notification methods as you like through the admin interface. Each job can have multiple notification methods, and each notification method can be associated to multiple jobs. For email notifications, enter your email address in the `value` field. For PagerDuty notifications, you would need to enter the API key in the `value` field.
 
 To get the PagerDuty API key:
