@@ -1,8 +1,8 @@
 source 'https://rubygems.org'
 
-ruby '2.2.2'
+ruby '2.4.1'
 
-gem 'rails', '4.2.2'
+gem 'rails', '4.2.9'
 
 # Bundle edge Rails instead:
 # gem 'rails', :git => 'git://github.com/rails/rails.git'
