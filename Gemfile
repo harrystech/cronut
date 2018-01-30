@@ -4,11 +4,6 @@ ruby '2.4.1'
 
 gem 'rails', '4.2.10'
 
-# Pin to older version of rake due to small incompatibility with rspec-core
-# https://stackoverflow.com/questions/35893584/nomethoderror-undefined-method-last-comment-after-upgrading-to-rake-11
-gem 'rake', '< 11.0'
-
-
 # Bundle edge Rails instead:
 # gem 'rails', :git => 'git://github.com/rails/rails.git'
 
