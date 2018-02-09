@@ -4,6 +4,7 @@ Cronut::Application.routes.draw do
 
   post 'ping' => "jobs#ping"
   post 'v2/ping' => "jobs#ping", defaults: {use_base64: true}
+  get 'health' => 'health_check#index'
 
   root to: 'jobs#index'
   # The priority is based upon order of creation:

@@ -10,4 +10,5 @@ end
 
 every(1.minute, 'check-expired-jobs') {
   Job.check_expired_jobs
+  HealthCheck.last.touch(:time_of_last_check)
 }
