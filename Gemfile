@@ -21,7 +21,7 @@ end
 
 gem 'jquery-rails'
 
-gem 'rufus-scheduler'
+gem 'rufus-scheduler', '~> 3.1.0'
 gem 'clockwork'
 gem 'pagerduty'
 
